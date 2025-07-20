@@ -17,5 +17,15 @@ class ServiceTicketSchema(ma.SQLAlchemySchema):
     date_created = ma.auto_field()
     customer_id = ma.auto_field(required=True)
 
-    customer = ma.Nested("CustomerSchema", only=("id", "name"))
-    mechanics = ma.Nested("MechanicSchema", many=True, only=("id", "name"))
+    customer = ma.Nested("CustomerSchema", only=("id", "name"), dump_only=True)
+
+    service_assignments = ma.Nested(
+        "ServiceAssignmentSchema",
+        many=True,
+        dump_only=True,
+        exclude=("service_ticket",),
+    )
+
+    mechanics = ma.Nested(
+        "MechanicSchema", many=True, dump_only=True, only=("id", "name")
+    )

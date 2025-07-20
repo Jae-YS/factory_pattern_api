@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 from sqlalchemy import func
 from app.extensions import db, limiter
-from app.models import Mechanic, ServiceTicket
+from app.models import Mechanic, ServiceAssignment, ServiceTicket
 from app.blueprints.mechanic.mechanicSchemas import MechanicSchema, MechanicLoginSchema
 from app.utils.util import mechanic_token_required, encode_mechanic_token
 
@@ -71,9 +71,6 @@ def get_mechanics():
 @mechanic_bp.route("/<int:id>", methods=["PUT"])
 @mechanic_token_required
 def update_mechanic(user_id, id):
-    """
-    Updates a specific mechanic's details.
-    """
     if user_id != id:
         return jsonify({"error": "Unauthorized to update this user"}), 403
     mechanic = Mechanic.query.get_or_404(id)
@@ -86,11 +83,15 @@ def update_mechanic(user_id, id):
         mechanic.address = data.get("address", mechanic.address)
         mechanic.salary = data.get("salary", mechanic.salary)
 
-        if "service_tickets" in data:
-            ticket_ids = data["service_tickets"]
-            mechanic.service_tickets = ServiceTicket.query.filter(
-                ServiceTicket.id.in_(ticket_ids)
-            ).all()
+        # Update service assignments if provided
+        if "service_ticket_ids" in data:
+            # Clear existing assignments
+            mechanic.service_assignments.clear()
+            for ticket_id in data["service_ticket_ids"]:
+                assignment = ServiceAssignment(
+                    service_ticket_id=ticket_id, mechanic_id=mechanic.id
+                )
+                db.session.add(assignment)
 
         db.session.commit()
         return mechanic_schema.jsonify(mechanic), 200

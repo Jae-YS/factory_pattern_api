@@ -1,4 +1,4 @@
-import select
+from sqlalchemy import select
 from flask import Blueprint, jsonify, request
 from app.extensions import db, limiter, cache
 from app.models import Customer, ServiceTicket
@@ -20,29 +20,30 @@ def login():
         credentials = login_schema.load(request.get_json())
         email = credentials.get("email")
         password = credentials.get("password")
-    except Exception as e:
+    except Exception:
         return jsonify({"error": "Invalid request format"}), 400
 
-    query = select(Customer).where(Customer.email == email)
-    user = db.session.execute(query).scalar_one_or_none()
+    user = Customer.query.filter_by(email=email).first()
     if user and user.password == password:
-        auth_token = encode_token(user.id, user.email)
-
-        response = {
-            "status": "success",
-            "message": "Successfully Logged In",
-            "auth_token": auth_token,
-        }
-        return jsonify(response), 200
+        auth_token = encode_token(user.id)
+        return (
+            jsonify(
+                {
+                    "status": "success",
+                    "message": "Successfully Logged In",
+                    "auth_token": auth_token,
+                }
+            ),
+            200,
+        )
     else:
-        return jsonify({"messages": "Invalid email or password"}), 401
+        return jsonify({"message": "Invalid email or password"}), 401
 
 
 @customer_bp.route("/", methods=["DELETE"])
 @token_required
-def delete_user(user_id):  # Receiving user_id from the token
-    query = select(Customer).where(Customer.id == user_id)
-    user = db.session.execute(query).scalars().first()
+def delete_user(user_id):
+    user = Customer.query.filter_by(id=user_id).first()
 
     if user:
         db.session.delete(user)

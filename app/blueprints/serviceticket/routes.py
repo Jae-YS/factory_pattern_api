@@ -1,6 +1,12 @@
 from flask import Blueprint, jsonify, request
 from app.extensions import db, cache
-from app.models import Inventory, InventoryServiceTicket, Mechanic, ServiceTicket
+from app.models import (
+    Inventory,
+    InventoryServiceTicket,
+    Mechanic,
+    ServiceAssignment,
+    ServiceTicket,
+)
 from app.blueprints.serviceticket.serviceTicketSchemas import ServiceTicketSchema
 from app.utils.util import mechanic_token_required, token_required
 
@@ -31,50 +37,51 @@ def create_service_ticket(user_id):
 
 
 @service_ticket_bp.route(
-    "/<int:ticket_id>/assign-mechanic/<int:mechanic_id>", methods=["PUT"]
+    "/<int:ticket_id>/assign-mechanic/<int:mechanic_id>", methods=["POST"]
 )
-@token_required
-def add_mechanic_to_ticket(user_id, ticket_id, mechanic_id):
+def assign_mechanic(ticket_id, mechanic_id):
     """
     Assigns a mechanic to a service ticket.
     """
-    if not user_id:
-        return jsonify({"error": "Unauthorized to assign a mechanic"}), 403
-    if user_id != mechanic_id:
-        return jsonify({"error": "Unauthorized to assign this mechanic"}), 403
     ticket = ServiceTicket.query.get_or_404(ticket_id)
     mechanic = Mechanic.query.get_or_404(mechanic_id)
 
-    try:
-        if mechanic not in ticket.mechanics:
-            ticket.mechanics.append(mechanic)
+    # Check if assignment already exists
+    existing = ServiceAssignment.query.filter_by(
+        service_ticket_id=ticket.id, mechanic_id=mechanic.id
+    ).first()
 
-        db.session.commit()
-        return service_ticket_schema.jsonify(ticket), 200
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({"error": str(e)}), 400
+    if not existing:
+        assignment = ServiceAssignment(
+            service_ticket_id=ticket.id, mechanic_id=mechanic.id
+        )
+        db.session.add(assignment)
+
+    db.session.commit()
+
+    updated_ticket = ServiceTicket.query.get(ticket_id)
+    return service_ticket_schema.jsonify(updated_ticket), 200
 
 
 @service_ticket_bp.route(
-    "/<int:ticket_id>/remove-mechanic/<int:mechanic_id>", methods=["PUT"]
+    "/<int:ticket_id>/remove-mechanic/<int:mechanic_id>", methods=["DELETE"]
 )
-def remove_mechanic_from_ticket(ticket_id, mechanic_id):
+def remove_mechanic(ticket_id, mechanic_id):
     """
     Removes a mechanic from a service ticket.
     """
-    ticket = ServiceTicket.query.get_or_404(ticket_id)
-    mechanic = Mechanic.query.get_or_404(mechanic_id)
+    assignment = ServiceAssignment.query.filter_by(
+        service_ticket_id=ticket_id, mechanic_id=mechanic_id
+    ).first()
 
-    try:
-        if mechanic in ticket.mechanics:
-            ticket.mechanics.remove(mechanic)
+    if not assignment:
+        return jsonify({"error": "Assignment not found"}), 404
 
-        db.session.commit()
-        return service_ticket_schema.jsonify(ticket), 200
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({"error": str(e)}), 400
+    db.session.delete(assignment)
+    db.session.commit()
+
+    updated_ticket = ServiceTicket.query.get(ticket_id)
+    return service_ticket_schema.jsonify(updated_ticket), 200
 
 
 @service_ticket_bp.route("/<int:ticket_id>/edit", methods=["PUT"])
@@ -94,15 +101,24 @@ def edit_service_ticket(ticket_id):
     remove_ids = data.get("remove_ids", [])
 
     try:
+        # Add mechanics
         for mechanic_id in add_ids:
-            mechanic = Mechanic.query.get(mechanic_id)
-            if mechanic and mechanic not in ticket.mechanics:
-                ticket.mechanics.append(mechanic)
+            existing = ServiceAssignment.query.filter_by(
+                service_ticket_id=ticket.id, mechanic_id=mechanic_id
+            ).first()
+            if not existing:
+                assignment = ServiceAssignment(
+                    service_ticket_id=ticket.id, mechanic_id=mechanic_id
+                )
+                db.session.add(assignment)
 
+        # Remove mechanics
         for mechanic_id in remove_ids:
-            mechanic = Mechanic.query.get(mechanic_id)
-            if mechanic and mechanic in ticket.mechanics:
-                ticket.mechanics.remove(mechanic)
+            assignment = ServiceAssignment.query.filter_by(
+                service_ticket_id=ticket.id, mechanic_id=mechanic_id
+            ).first()
+            if assignment:
+                db.session.delete(assignment)
 
         db.session.commit()
         return service_ticket_schema.jsonify(ticket), 200

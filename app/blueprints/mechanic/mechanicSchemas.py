@@ -5,7 +5,7 @@ from app.models import Mechanic
 class MechanicSchema(ma.SQLAlchemySchema):
     class Meta:
         model = Mechanic
-        load_instance = True  # Deserialize to SQLAlchemy objects
+        load_instance = True
 
     id = ma.auto_field()
     name = ma.auto_field()
@@ -13,7 +13,18 @@ class MechanicSchema(ma.SQLAlchemySchema):
     phone = ma.auto_field()
     address = ma.auto_field()
     salary = ma.auto_field()
-    service_tickets = ma.Nested("ServiceTicketSchema", many=True, dump_only=True)
+    password = ma.auto_field(load_only=True)
+
+    service_assignments = ma.Nested(
+        "ServiceAssignmentSchema",
+        many=True,
+        dump_only=True,
+        exclude=("mechanic",),
+    )
+
+    service_tickets = ma.Nested(
+        "ServiceTicketSchema", many=True, dump_only=True, only=("id", "vin")
+    )
 
 
 class MechanicLoginSchema(ma.Schema):
