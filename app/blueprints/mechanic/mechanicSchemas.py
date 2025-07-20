@@ -14,3 +14,12 @@ class MechanicSchema(ma.SQLAlchemySchema):
     address = ma.auto_field()
     salary = ma.auto_field()
     service_tickets = ma.Nested("ServiceTicketSchema", many=True, dump_only=True)
+
+
+class MechanicLoginSchema(ma.Schema):
+    email = ma.Email(required=True)
+    password = ma.String(required=True)
+
+    class Meta:
+        ordered = True
+        fields = ("email", "password")

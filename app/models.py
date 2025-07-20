@@ -25,7 +25,7 @@ service_assignment = db.Table(
 
 
 # Models
-class Mechanic(db.Model):
+class Mechanic(Base):
     __tablename__ = "mechanics"
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -42,10 +42,11 @@ class Mechanic(db.Model):
     )
 
 
-class Customer(db.Model):
+class Customer(Base):
     __tablename__ = "customers"
 
     id: Mapped[int] = mapped_column(primary_key=True)
+    password: Mapped[str] = mapped_column(db.String(255), nullable=False)
     name: Mapped[str] = mapped_column(db.String(255), nullable=False)
     email: Mapped[str] = mapped_column(db.String(360), nullable=False, unique=True)
     phone: Mapped[str] = mapped_column(db.String(20), nullable=False)
@@ -56,7 +57,7 @@ class Customer(db.Model):
     )
 
 
-class ServiceTicket(db.Model):
+class ServiceTicket(Base):
     __tablename__ = "service_tickets"
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -78,3 +79,27 @@ class ServiceTicket(db.Model):
         secondary=service_assignment,
         back_populates="service_tickets",
     )
+
+
+class Inventory(Base):
+    __tablename__ = "inventory"
+
+    id: Mapped[int] = mapped_column(primary_key=True, unique=True)
+    part_name: Mapped[str] = mapped_column(db.String(255), nullable=False)
+    price: Mapped[float] = mapped_column(db.Float, nullable=False)
+
+
+class InventoryServiceTicket(Base):
+    __tablename__ = "inventory_service_tickets"
+
+    id: Mapped[int] = mapped_column(primary_key=True, unique=True)
+    service_ticket_id: Mapped[int] = mapped_column(
+        db.ForeignKey("service_tickets.id"), nullable=False
+    )
+    inventory_id: Mapped[int] = mapped_column(
+        db.ForeignKey("inventory.id"), nullable=False
+    )
+    quantity: Mapped[int] = mapped_column(db.Integer, nullable=False, default=1)
+
+    service_ticket: Mapped["ServiceTicket"] = relationship("ServiceTicket")
+    inventory: Mapped["Inventory"] = relationship("Inventory")
