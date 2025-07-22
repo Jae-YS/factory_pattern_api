@@ -4,8 +4,6 @@ This project is a RESTful API for managing **customers, mechanics, service ticke
 
 ---
 
-## Features
-
 ### Customers API
 
 - `POST /customers`: Register a new customer.
@@ -48,7 +46,6 @@ This project is a RESTful API for managing **customers, mechanics, service ticke
 - **Rate Limiting**: Applied globally to protect against API abuse using `Flask-Limiter`.
 - **Caching**: Implemented on frequently accessed routes using `Flask-Caching`.
 - **JWT Authentication**:
-
   - Customers and Mechanics have separate tokens with role-based access control.
   - Decorators: `@token_required` for customers, `@mechanic_token_required` for mechanics.
 
