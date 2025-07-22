@@ -8,65 +8,48 @@ __pycache__/
 
 # Distribution / packaging
 .Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# Flask & Python environment
+env/
 venv/
 ENV/
-env/
-*.env
-*.flaskenv
+env.bak/
+venv.bak/
 
-# SQLite database
+# Flask instance folder
+instance/
 *.db
 *.sqlite3
+
+# Pytest cache
+.pytest_cache/
+.coverage
+.cache
+
+# SQLAlchemy migrations
+migrations/
 
 # Logs
 *.log
 
-# VSCode settings
+# Node modules (if using JS tooling)
+node_modules/
+
+# Static files (if generated)
+app/static/*
+
+# VSCode
 .vscode/
 
-# macOS
+# MacOS
 .DS_Store
 
-# PyCharm
-.idea/
-
-# Test artifacts
-coverage/
+# Test results
 htmlcov/
-.tox/
-.nox/
-.pytest_cache/
-.coverage
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-.hypothesis/
+*.coverage
 
-# mypy
-.mypy_cache/
+# Ignore secrets (but don't forget to keep .env.example)
+.env
 
-# Pipenv
-Pipfile.lock
-
-# Local instance data
-instance/
-
-# Gunicorn
-gunicorn.pid
+# Python virtual environment
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
