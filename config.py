@@ -20,4 +20,5 @@ class TestingConfig(Config):
 
 
 class ProductionConfig(Config):
+    SQLALCHEMY_DATABASE_URI = "sqlite:///production.db"
     DEBUG = False
