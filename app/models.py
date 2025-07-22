@@ -47,13 +47,13 @@ class Mechanic(db.Model):
     phone: Mapped[str] = mapped_column(String(20), nullable=False)
     address: Mapped[str] = mapped_column(String(255), nullable=False)
     salary: Mapped[float] = mapped_column(Float, nullable=False)
-    _password: Mapped[str] = mapped_column("password", String(128), nullable=False)
+    password: Mapped[str] = mapped_column("password", String(128), nullable=False)
 
     def set_password(self, password: str):
-        self._password = generate_password_hash(password)
+        self.password = generate_password_hash(password)
 
     def check_password(self, password: str) -> bool:
-        return check_password_hash(self._password, password)
+        return check_password_hash(self.password, password)
 
     service_assignments: Mapped[List["ServiceAssignment"]] = relationship(
         "ServiceAssignment", back_populates="mechanic", cascade="all, delete-orphan"

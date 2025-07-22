@@ -1,6 +1,7 @@
+from datetime import date
 import unittest
 from app import create_app, db
-from app.models import Mechanic, ServiceTicket, ServiceAssignment
+from app.models import Customer, Mechanic, ServiceTicket, ServiceAssignment
 from flask import Flask
 
 
@@ -12,6 +13,18 @@ class MechanicRoutesTestCase(unittest.TestCase):
 
         with self.app.app_context():
             db.create_all()
+
+            # Create a test customer
+            self.customer = Customer(
+                name="John Doe",
+                email="john@example.com",
+                phone="1234567890",
+                address="123 Main St",
+                service_tickets=[],
+            )
+            self.customer.set_password("password123")
+            db.session.add(self.customer)
+
             # Create test mechanic
             self.mechanic = Mechanic(
                 name="Alice Mechanic",
@@ -63,7 +76,7 @@ class MechanicRoutesTestCase(unittest.TestCase):
     # === TESTS FOR /mechanics (POST) ===
     def test_create_mechanic_success(self):
         response = self.client.post(
-            "/mechanics",
+            "/mechanic/",
             json={
                 "name": "Bob Builder",
                 "email": "bob@example.com",
@@ -78,7 +91,7 @@ class MechanicRoutesTestCase(unittest.TestCase):
 
     def test_create_mechanic_duplicate_email(self):
         response = self.client.post(
-            "/mechanics",
+            "/mechanic/",
             json={
                 "name": "Duplicate",
                 "email": "alice@example.com",  # already exists
@@ -93,7 +106,7 @@ class MechanicRoutesTestCase(unittest.TestCase):
 
     # === TESTS FOR /mechanics (GET) ===
     def test_get_mechanics_success(self):
-        response = self.client.get("/mechanics")
+        response = self.client.get("/mechanic/")
         self.assertEqual(response.status_code, 200)
         self.assertIn("mechanics", response.get_json())
 
@@ -120,9 +133,9 @@ class MechanicRoutesTestCase(unittest.TestCase):
         self.assertEqual(response.get_json()["name"], "Alice Updated")
 
     def test_update_mechanic_unauthorized(self):
-        # Simulate wrong user
+
         response = self.client.put(
-            "/mechanic/9999",  # Wrong ID
+            "/mechanic/9999",
             headers=self.auth_header(),
             json={"name": "Hacker"},
         )
@@ -144,7 +157,14 @@ class MechanicRoutesTestCase(unittest.TestCase):
         # Add a service ticket and assignment
         with self.app.app_context():
             ticket = ServiceTicket(
-                title="Fix Car", description="Oil change", customer_id=None
+                title="Fix AC",
+                description="Air conditioner not cooling",
+                vin="1HGCM826CX000000",
+                service_date=date(2023, 10, 1),
+                status="PENDING",
+                cost=150.0,
+                date_created=date(2023, 9, 1),
+                customer=self.customer,
             )
             db.session.add(ticket)
             db.session.flush()

@@ -27,9 +27,9 @@ def encode_token(
 def encode_mechanic_token(mechanic_id):
 
     payload = {
-        "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=2),
-        "iat": datetime.datetime.utcnow(),
-        "sub": mechanic_id,
+        "exp": datetime.now(timezone.utc) + timedelta(days=0, hours=3),
+        "iat": datetime.now(timezone.utc),
+        "sub": str(mechanic_id),
         "role": "mechanic",
     }
     token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")

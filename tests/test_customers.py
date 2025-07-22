@@ -2,7 +2,6 @@ from datetime import date
 import unittest
 from app import create_app, db
 from app.models import Customer, ServiceTicket
-from flask import Flask
 
 
 class CustomerRoutesTestCase(unittest.TestCase):
@@ -152,9 +151,9 @@ class CustomerRoutesTestCase(unittest.TestCase):
         self.assertEqual(response.get_json()["name"], "John Updated")
 
     def test_update_customer_unauthorized(self):
-        # Try to update a different user (simulate different user_id)
+
         response = self.client.put(
-            "/customer/9999",  # ID that doesn’t match user_id
+            "/customer/9999",
             headers=self.auth_header(),
             json={"name": "Hacker"},
         )

@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, abort
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import func
 from app.extensions import db, limiter
@@ -6,7 +6,7 @@ from app.models import Mechanic, ServiceAssignment, ServiceTicket
 from app.blueprints.mechanic.mechanicSchemas import MechanicSchema, MechanicLoginSchema
 from app.utils.util import mechanic_token_required, encode_mechanic_token
 
-mechanic_bp = Blueprint("mechanic", __name__, url_prefix="/mechanics")
+mechanic_bp = Blueprint("mechanic", __name__, url_prefix="/mechanic")
 
 # Schema instances
 mechanic_schema = MechanicSchema()
@@ -26,7 +26,9 @@ def mechanic_login():
     except Exception:
         return jsonify({"error": "Invalid request format"}), 400
 
-    mechanic = Mechanic.query.filter_by(email=email).first()
+    mechanic = db.session.execute(
+        db.select(Mechanic).filter_by(email=email)
+    ).scalar_one_or_none()
 
     if mechanic and mechanic.check_password(password):
         auth_token = encode_mechanic_token(mechanic.id)
@@ -46,11 +48,14 @@ def create_mechanic():
     """
     Creates a new mechanic (with hashed password).
     """
-    data = request.get_json()
-    if Mechanic.query.filter_by(email=data.get("email")).first():
-        return jsonify({"error": "Email already exists."}), 409
-
     try:
+        data = request.get_json()
+        existing_mechanic = db.session.execute(
+            db.select(Mechanic).filter_by(email=data.get("email"))
+        ).scalar_one_or_none()
+        if existing_mechanic:
+            return jsonify({"error": "Email already exists."}), 409
+
         new_mechanic = mechanic_schema.load(data)
         db.session.add(new_mechanic)
         db.session.commit()
@@ -91,10 +96,11 @@ def get_mechanic(user_id, id):
     Retrieves a specific mechanic by ID.
     """
     if str(user_id) != str(id):
-
         return jsonify({"error": "Unauthorized to access this user"}), 403
 
-    mechanic = Mechanic.query.get_or_404(id)
+    mechanic = db.session.get(Mechanic, id)
+    if not mechanic:
+        abort(404, description="Mechanic not found.")
     return mechanic_schema.jsonify(mechanic), 200
 
 
@@ -105,10 +111,12 @@ def update_mechanic(user_id, id):
     Updates a mechanic by ID (only self).
     """
     if str(user_id) != str(id):
-
         return jsonify({"error": "Unauthorized to update this user"}), 403
 
-    mechanic = Mechanic.query.get_or_404(id)
+    mechanic = db.session.get(Mechanic, id)
+    if not mechanic:
+        abort(404, description="Mechanic not found.")
+
     try:
         data = request.get_json()
 
@@ -147,10 +155,11 @@ def delete_mechanic(user_id, id):
     Deletes a specific mechanic (only self).
     """
     if str(user_id) != str(id):
-
         return jsonify({"error": "Unauthorized to delete this user"}), 403
 
-    mechanic = Mechanic.query.get_or_404(id)
+    mechanic = db.session.get(Mechanic, id)
+    if not mechanic:
+        abort(404, description="Mechanic not found.")
     try:
         db.session.delete(mechanic)
         db.session.commit()

@@ -32,8 +32,8 @@ class MechanicSchema(ma.SQLAlchemySchema):
         """
         Automatically hash password if provided in input.
         """
-        if "password" in data:
-            raw_password = data.pop("password")
+        if hasattr(data, "password") and data.password:
+            raw_password = data.password
             data.set_password(raw_password)
         return data
 
