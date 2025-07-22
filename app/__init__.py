@@ -23,6 +23,8 @@ swaggerui_blueprint = get_swaggerui_blueprint(
 )
 
 
+
+
 def create_app(config_name=None):
     load_dotenv()
 
@@ -34,7 +36,7 @@ def create_app(config_name=None):
     elif config_name == "production":
         app.config.from_object("config.ProductionConfig")
     else:
-        app.config.from_object("config.DefaultConfig")
+        app.config.from_object("config.Config")
 
     db.init_app(app)
     ma.init_app(app)
