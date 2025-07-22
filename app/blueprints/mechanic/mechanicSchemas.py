@@ -1,5 +1,6 @@
 from app.extensions import ma
 from app.models import Mechanic
+from marshmallow import post_load
 
 
 class MechanicSchema(ma.SQLAlchemySchema):
@@ -13,7 +14,7 @@ class MechanicSchema(ma.SQLAlchemySchema):
     phone = ma.auto_field()
     address = ma.auto_field()
     salary = ma.auto_field()
-    password = ma.auto_field(load_only=True)
+    password = ma.String(load_only=True, required=True)
 
     service_assignments = ma.Nested(
         "ServiceAssignmentSchema",
@@ -25,6 +26,16 @@ class MechanicSchema(ma.SQLAlchemySchema):
     service_tickets = ma.Nested(
         "ServiceTicketSchema", many=True, dump_only=True, only=("id", "vin")
     )
+
+    @post_load
+    def hash_password(self, data, **kwargs):
+        """
+        Automatically hash password if provided in input.
+        """
+        if "password" in data:
+            raw_password = data.pop("password")
+            data.set_password(raw_password)
+        return data
 
 
 class MechanicLoginSchema(ma.Schema):

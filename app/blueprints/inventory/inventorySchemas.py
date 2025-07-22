@@ -10,3 +10,5 @@ class InventorySchema(ma.SQLAlchemySchema):
     id = ma.auto_field()
     part_name = ma.auto_field()
     price = ma.auto_field()
+    quantity = ma.auto_field()
+    description = ma.auto_field()

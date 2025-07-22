@@ -1,5 +1,6 @@
 from app.models import Customer
 from app.extensions import ma
+from marshmallow import post_load
 
 
 class CustomerSchema(ma.SQLAlchemySchema):
@@ -13,7 +14,21 @@ class CustomerSchema(ma.SQLAlchemySchema):
     email = ma.auto_field()
     phone = ma.auto_field()
     address = ma.auto_field()
-    service_tickets = ma.Nested("ServiceTicketSchema", many=True, exclude=("customer",))
+    service_tickets = ma.Nested(
+        "ServiceTicketSchema",
+        many=True,
+        exclude=("customer",),
+    )
+
+    @post_load
+    def hash_password(self, data, **kwargs):
+        """
+        Automatically hash password if provided in input.
+        """
+        if hasattr(data, "password") and data.password:
+            raw_password = data.password
+            data.set_password(raw_password)
+        return data
 
 
 class LoginSchema(ma.Schema):

@@ -1,14 +1,13 @@
-# app/blueprints/serviceassignment/serviceAssignmentRoutes.py
-
 from flask import Blueprint, jsonify, request
 from app.extensions import db
-from app.models import ServiceAssignment, Mechanic, ServiceTicket
+from app.models import ServiceAssignment
 from app.blueprints.serviceassignment.serviceAssignmentSchemas import (
     ServiceAssignmentSchema,
 )
+from app.utils.util import mechanic_token_required
 
 service_assignment_bp = Blueprint(
-    "service_assignment", __name__, url_prefix="/assignments"
+    "service_assignment", __name__, url_prefix="/assignment"
 )
 
 # Schema instances
@@ -17,6 +16,7 @@ assignments_schema = ServiceAssignmentSchema(many=True)
 
 
 @service_assignment_bp.route("/", methods=["POST"])
+@mechanic_token_required
 def create_assignment():
     """
     Assign a mechanic to a service ticket.
@@ -45,6 +45,7 @@ def create_assignment():
 
 
 @service_assignment_bp.route("/", methods=["GET"])
+@mechanic_token_required
 def get_all_assignments():
     """
     Get all mechanic-service ticket assignments.
@@ -54,6 +55,7 @@ def get_all_assignments():
 
 
 @service_assignment_bp.route("/", methods=["DELETE"])
+@mechanic_token_required
 def delete_assignment():
     """
     Remove a mechanic from a service ticket.
