@@ -12,7 +12,6 @@ class CustomerRoutesTestCase(unittest.TestCase):
 
         with self.app.app_context():
             db.create_all()
-            # Create a test customer
             self.customer = Customer(
                 name="John Doe",
                 email="john@example.com",

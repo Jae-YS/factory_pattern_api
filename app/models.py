@@ -14,7 +14,6 @@ class ServiceStatus(enum.Enum):
     CANCELLED = "Cancelled"
 
 
-# Association Table as a Full Model
 class ServiceAssignment(db.Model):
     __tablename__ = "service_assignment"
 
@@ -62,7 +61,7 @@ class Mechanic(db.Model):
         "ServiceTicket",
         secondary="service_assignment",
         back_populates="mechanics",
-        viewonly=True,
+        overlaps="service_assignments,mechanic"
     )
 
 
@@ -107,6 +106,12 @@ class ServiceTicket(db.Model):
         "Customer", back_populates="service_tickets"
     )
 
+    inventory_assignments: Mapped[List["InventoryAssignment"]] = relationship(
+        "InventoryAssignment",
+        back_populates="service_ticket",
+        cascade="all, delete-orphan",
+    )
+
     service_assignments: Mapped[List["ServiceAssignment"]] = relationship(
         "ServiceAssignment",
         back_populates="service_ticket",
@@ -116,9 +121,8 @@ class ServiceTicket(db.Model):
         "Mechanic",
         secondary="service_assignment",
         back_populates="service_tickets",
-        viewonly=True,
+        overlaps="service_assignments,mechanic"
     )
-
 
 class Inventory(db.Model):
     __tablename__ = "inventory"
@@ -129,9 +133,15 @@ class Inventory(db.Model):
     quantity: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     description: Mapped[str] = mapped_column(String(500), nullable=True)
 
+    inventory_assignments: Mapped[List["InventoryAssignment"]] = relationship(
+        "InventoryAssignment",
+        back_populates="inventory",
+        cascade="all, delete-orphan",
+    )
 
-class InventoryServiceTicket(db.Model):
-    __tablename__ = "inventory_service_tickets"
+
+class InventoryAssignment(db.Model):
+    __tablename__ = "inventory_assignment"
 
     id: Mapped[int] = mapped_column(primary_key=True, unique=True)
     service_ticket_id: Mapped[int] = mapped_column(
@@ -144,5 +154,9 @@ class InventoryServiceTicket(db.Model):
     )
     quantity: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
 
-    service_ticket: Mapped["ServiceTicket"] = relationship("ServiceTicket")
-    inventory: Mapped["Inventory"] = relationship("Inventory")
+    service_ticket: Mapped["ServiceTicket"] = relationship(
+        "ServiceTicket", back_populates="inventory_assignments"
+    )
+    inventory: Mapped["Inventory"] = relationship(
+        "Inventory", back_populates="inventory_assignments"
+    )

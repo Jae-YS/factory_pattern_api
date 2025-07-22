@@ -1,18 +1,18 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, abort
 from sqlalchemy.exc import SQLAlchemyError
 from app.extensions import db, limiter, cache
 from app.models import (
     Inventory,
-    InventoryServiceTicket,
+    InventoryAssignment,
     Mechanic,
     ServiceAssignment,
     ServiceStatus,
     ServiceTicket,
 )
 from app.blueprints.serviceticket.serviceTicketSchemas import ServiceTicketSchema
-from app.utils.util import mechanic_token_required, token_required
+from app.utils.util import mechanic_token_required
 
-service_ticket_bp = Blueprint("service_ticket", __name__, url_prefix="/service_tickets")
+service_ticket_bp = Blueprint("service_ticket", __name__, url_prefix="/service_ticket")
 
 # Schema instances
 service_ticket_schema = ServiceTicketSchema()
@@ -33,50 +33,48 @@ def parse_status(status_str):
 
 
 @service_ticket_bp.route("/", methods=["POST"])
-@token_required
+@mechanic_token_required
 @limiter.limit("10 per hour")
-def create_service_ticket(user_id):
+def create_service_ticket(mechanic_id):
     """
-    Creates a new service ticket for the authenticated user and optionally assigns mechanics and parts.
+    Creates a new service ticket and optionally assigns mechanics and parts.
+    Only authenticated mechanics can create tickets.
     """
-    if not user_id:
-        return jsonify({"error": "Unauthorized to create a service ticket"}), 403
-
     data = request.get_json()
 
     mechanic_ids = data.pop("mechanic_ids", [])
     inventory_items = data.pop("inventory_items", [])
 
+    if "customer_id" not in data:
+        return jsonify({"error": "customer_id is required"}), 400
+
     if "status" not in data:
-        data["status"] = ServiceStatus.PENDING.name
-    else:
-        try:
-            data["status"] = parse_status(data["status"])
-        except ValueError as ve:
-            return jsonify({"error": str(ve)}), 400
+        data["status"] = "PENDING"
 
     try:
         new_ticket = service_ticket_schema.load(data)
+
         db.session.add(new_ticket)
         db.session.commit()
 
-        for mechanic_id in mechanic_ids:
-            mechanic = Mechanic.query.get(mechanic_id)
+        for m_id in mechanic_ids:
+
+            mechanic = db.session.get(Mechanic, m_id)
             if not mechanic:
                 db.session.rollback()
-                return (
-                    jsonify({"error": f"Mechanic with ID {mechanic_id} not found."}),
-                    404,
-                )
+                return jsonify({"error": f"Mechanic with ID {m_id} not found."}), 404
+
             assignment = ServiceAssignment(
-                service_ticket_id=new_ticket.id, mechanic_id=mechanic_id
+                service_ticket_id=new_ticket.id, mechanic_id=m_id
             )
             db.session.add(assignment)
+
+        db.session.commit()
 
         for item in inventory_items:
             inventory_id = item.get("inventory_id")
             quantity = item.get("quantity", 1)
-            inventory = Inventory.query.get(inventory_id)
+            inventory = db.session.get(Inventory, inventory_id)
             if not inventory:
                 db.session.rollback()
                 return (
@@ -84,14 +82,16 @@ def create_service_ticket(user_id):
                     404,
                 )
 
-            link = InventoryServiceTicket.query.filter_by(
-                service_ticket_id=new_ticket.id, inventory_id=inventory_id
-            ).first()
+            link = db.session.execute(
+                db.select(InventoryAssignment).filter_by(
+                    service_ticket_id=new_ticket.id, inventory_id=inventory_id
+                )
+            ).scalar_one_or_none()
 
             if link:
                 link.quantity += quantity
             else:
-                link = InventoryServiceTicket(
+                link = InventoryAssignment(
                     service_ticket_id=new_ticket.id,
                     inventory_id=inventory_id,
                     quantity=quantity,
@@ -99,7 +99,6 @@ def create_service_ticket(user_id):
                 db.session.add(link)
 
         db.session.commit()
-
         return (
             jsonify(
                 {
@@ -120,10 +119,12 @@ def create_service_ticket(user_id):
 
 
 @service_ticket_bp.route("/", methods=["GET"])
+@mechanic_token_required
 @cache.cached(timeout=30)
-def get_service_tickets():
+def get_service_tickets(mechanic_id):
     """
     Retrieves all service tickets (with pagination support, cached for performance).
+    Only authenticated mechanics can view tickets.
     """
     page = request.args.get("page", 1, type=int)
     per_page = request.args.get("per_page", 10, type=int)
@@ -147,12 +148,16 @@ def get_service_tickets():
 
 
 @service_ticket_bp.route("/<int:ticket_id>", methods=["GET"])
-def get_service_ticket(ticket_id):
+@mechanic_token_required
+def get_service_ticket(mechanic_id, ticket_id):
     """
     Retrieves a specific service ticket by ID.
+    Only authenticated mechanics can view tickets.
     """
     try:
-        ticket = ServiceTicket.query.get_or_404(ticket_id)
+        ticket = db.session.get(ServiceTicket, ticket_id)
+        if not ticket:
+            abort(404, description="Service ticket not found.")
         return (
             jsonify(
                 {"status": "success", "ticket": service_ticket_schema.dump(ticket)}
@@ -165,92 +170,97 @@ def get_service_ticket(ticket_id):
 
 @service_ticket_bp.route("/<int:ticket_id>", methods=["PUT"])
 @mechanic_token_required
-def update_service_ticket(ticket_id):
+def update_service_ticket(mechanic_id, ticket_id):
     """
     Updates a service ticket: add/remove mechanics, add/remove inventory parts, and update status.
-
-    Example request body:
-    {
-        "add_mechanics": [1, 2],
-        "remove_mechanics": [3],
-        "add_inventory": [
-            {"inventory_id": 1, "quantity": 2},
-            {"inventory_id": 4, "quantity": 1}
-        ],
-        "remove_inventory": [2],
-        "status": "COMPLETED"
-    }
+    Only authenticated mechanics can perform updates. Only fields provided in the request will be updated.
     """
-    ticket = ServiceTicket.query.get_or_404(ticket_id)
+    ticket = db.session.get(ServiceTicket, ticket_id)
+    if not ticket:
+        abort(404, description="Service ticket not found.")
+
     data = request.get_json()
 
-    add_mechanics = data.get("add_mechanics", [])
-    remove_mechanics = data.get("remove_mechanics", [])
-    add_inventory = data.get("add_inventory", [])
-    remove_inventory = data.get("remove_inventory", [])
-    new_status = data.get("status")
+    
+    add_mechanics = data.pop("add_mechanics", None)
+    remove_mechanics = data.pop("remove_mechanics", None)
+    add_inventory = data.pop("add_inventory", None)
+    remove_inventory = data.pop("remove_inventory", None)
+    new_status = data.pop("status", None)
 
     try:
-        # ✅ Add mechanics
-        for mechanic_id in add_mechanics:
-            if not ServiceAssignment.query.filter_by(
-                service_ticket_id=ticket.id, mechanic_id=mechanic_id
-            ).first():
-                mechanic = Mechanic.query.get(mechanic_id)
-                if not mechanic:
+        service_ticket_schema.load(
+            data, instance=ticket, session=db.session, partial=True
+        )        
+        if add_mechanics:
+            for m_id in add_mechanics:
+                if not db.session.execute(
+                    db.select(ServiceAssignment).filter_by(
+                        service_ticket_id=ticket.id, mechanic_id=m_id
+                    )
+                ).scalar_one_or_none():
+                    mechanic = db.session.get(Mechanic, m_id)
+                    if not mechanic:
+                        return (
+                            jsonify({"error": f"Mechanic with ID {m_id} not found."}),
+                            404,
+                        )
+                    assignment = ServiceAssignment(
+                        service_ticket_id=ticket.id, mechanic_id=m_id
+                    )
+                    db.session.add(assignment)
+
+        if remove_mechanics:
+            for m_id in remove_mechanics:
+                assignment = db.session.execute(
+                    db.select(ServiceAssignment).filter_by(
+                        service_ticket_id=ticket.id, mechanic_id=m_id
+                    )
+                ).scalar_one_or_none()
+                if assignment:
+                    db.session.delete(assignment)
+
+        
+        if add_inventory:
+            for item in add_inventory:
+                inventory_id = item.get("inventory_id")
+                quantity = item.get("quantity", 1)
+                inventory = db.session.get(Inventory, inventory_id)
+                if not inventory:
                     return (
                         jsonify(
-                            {"error": f"Mechanic with ID {mechanic_id} not found."}
+                            {"error": f"Inventory with ID {inventory_id} not found."}
                         ),
                         404,
                     )
-                assignment = ServiceAssignment(
-                    service_ticket_id=ticket.id, mechanic_id=mechanic_id
-                )
-                db.session.add(assignment)
 
-        # ✅ Remove mechanics
-        for mechanic_id in remove_mechanics:
-            assignment = ServiceAssignment.query.filter_by(
-                service_ticket_id=ticket.id, mechanic_id=mechanic_id
-            ).first()
-            if assignment:
-                db.session.delete(assignment)
+                link = db.session.execute(
+                    db.select(InventoryAssignment).filter_by(
+                        service_ticket_id=ticket.id, inventory_id=inventory_id
+                    )
+                ).scalar_one_or_none()
 
-        # ✅ Add inventory parts
-        for item in add_inventory:
-            inventory_id = item.get("inventory_id")
-            quantity = item.get("quantity", 1)
-            inventory = Inventory.query.get(inventory_id)
-            if not inventory:
-                return (
-                    jsonify({"error": f"Inventory with ID {inventory_id} not found."}),
-                    404,
-                )
+                if link:
+                    link.quantity += quantity
+                else:
+                    link = InventoryAssignment(
+                        service_ticket_id=ticket.id,
+                        inventory_id=inventory_id,
+                        quantity=quantity,
+                    )
+                    db.session.add(link)
+     
+        if remove_inventory:
+            for inventory_id in remove_inventory:
+                link = db.session.execute(
+                    db.select(InventoryAssignment).filter_by(
+                        service_ticket_id=ticket.id, inventory_id=inventory_id
+                    )
+                ).scalar_one_or_none()
+                if link:
+                    db.session.delete(link)
 
-            link = InventoryServiceTicket.query.filter_by(
-                service_ticket_id=ticket.id, inventory_id=inventory_id
-            ).first()
-
-            if link:
-                link.quantity += quantity
-            else:
-                link = InventoryServiceTicket(
-                    service_ticket_id=ticket.id,
-                    inventory_id=inventory_id,
-                    quantity=quantity,
-                )
-                db.session.add(link)
-
-        # ✅ Remove inventory parts
-        for inventory_id in remove_inventory:
-            link = InventoryServiceTicket.query.filter_by(
-                service_ticket_id=ticket.id, inventory_id=inventory_id
-            ).first()
-            if link:
-                db.session.delete(link)
-
-        # ✅ Update status if provided
+       
         if new_status:
             ticket.status = parse_status(new_status)
 
@@ -273,13 +283,16 @@ def update_service_ticket(ticket_id):
         db.session.rollback()
         return jsonify({"error": f"Invalid data: {str(e)}"}), 400
 
-
 @service_ticket_bp.route("/<int:ticket_id>", methods=["DELETE"])
-def delete_service_ticket(ticket_id):
+@mechanic_token_required
+def delete_service_ticket(mechanic_id, ticket_id):
     """
     Deletes a service ticket.
+    Only authenticated mechanics can delete tickets.
     """
-    ticket = ServiceTicket.query.get_or_404(ticket_id)
+    ticket = db.session.get(ServiceTicket, ticket_id)
+    if not ticket:
+        abort(404, description="Service ticket not found.")
 
     try:
         db.session.delete(ticket)

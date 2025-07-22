@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request, abort
 from sqlalchemy.exc import SQLAlchemyError
-from app.extensions import db, limiter
+from app.extensions import db
 from app.models import Inventory
 from app.blueprints.inventory.inventorySchemas import InventorySchema
 from app.utils.util import mechanic_token_required
@@ -19,7 +19,7 @@ def get_inventory_for_mechanic(mechanic_id):
     """
     Retrieves all inventory items for the authenticated mechanic.
     """
-    inventory_items = Inventory.query.all()
+    inventory_items = db.session.execute(db.select(Inventory)).scalars().all()
     return inventories_schema.jsonify(inventory_items), 200
 
 
@@ -29,7 +29,7 @@ def get_inventory_item(mechanic_id, inventory_id):
     """
     Retrieves a specific inventory item by ID.
     """
-    item = Inventory.query.get(inventory_id)
+    item = db.session.get(Inventory, inventory_id)
     if not item:
         abort(404, description="Inventory item not found.")
     return inventory_schema.jsonify(item), 200
@@ -47,10 +47,11 @@ def create_inventory_item(mechanic_id):
         db.session.add(new_item)
         db.session.commit()
         return inventory_schema.jsonify(new_item), 201
-    except SQLAlchemyError as e:
+    except SQLAlchemyError:
         db.session.rollback()
         return jsonify({"error": "Database error occurred"}), 500
-    except Exception as e:
+    except Exception:
+        db.session.rollback()
         return jsonify({"error": "Invalid request payload"}), 400
 
 
@@ -60,18 +61,20 @@ def update_inventory_item(mechanic_id, inventory_id):
     """
     Updates a specific inventory item by ID.
     """
-    item = Inventory.query.get(inventory_id)
+    item = db.session.get(Inventory, inventory_id)
     if not item:
         abort(404, description="Inventory item not found.")
+
     data = request.get_json()
     try:
-        updated_item = inventory_schema.load(data, instance=item)
+        updated_item = inventory_schema.load(data, instance=item, partial=True)
         db.session.commit()
         return inventory_schema.jsonify(updated_item), 200
     except SQLAlchemyError:
         db.session.rollback()
         return jsonify({"error": "Database error occurred"}), 500
     except Exception:
+        db.session.rollback()
         return jsonify({"error": "Invalid request payload"}), 400
 
 
@@ -81,13 +84,17 @@ def delete_inventory_item(mechanic_id, inventory_id):
     """
     Deletes a specific inventory item by ID.
     """
-    item = Inventory.query.get(inventory_id)
+    item = db.session.get(Inventory, inventory_id)
     if not item:
         abort(404, description="Inventory item not found.")
     try:
+        item_id = item.id
         db.session.delete(item)
         db.session.commit()
-        return jsonify({"message": "Inventory item deleted successfully"}), 204
+        return (
+            jsonify({"message": f"Inventory item {item_id} deleted successfully"}),
+            204,
+        )
     except SQLAlchemyError:
         db.session.rollback()
         return jsonify({"error": "Database error occurred"}), 500

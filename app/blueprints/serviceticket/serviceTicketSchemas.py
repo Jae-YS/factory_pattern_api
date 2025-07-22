@@ -3,7 +3,7 @@ from app.models import ServiceTicket, ServiceStatus
 from marshmallow import fields, ValidationError
 
 
-# Custom field for handling enums
+#
 class EnumField(fields.Field):
     def __init__(self, enum_class, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -12,13 +12,15 @@ class EnumField(fields.Field):
     def _serialize(self, value, attr, obj, **kwargs):
         if value is None:
             return None
-        return value.name  # Serialize enum as string like "PENDING"
+        return value.name  
 
     def _deserialize(self, value, attr, data, **kwargs):
         if value is None:
             return None
+        if isinstance(value, self.enum_class):
+            return value  
         try:
-            return self.enum_class[value.upper()]  # Case-insensitive
+            return self.enum_class[value.upper()]  
         except KeyError:
             raise ValidationError(
                 f"Invalid status '{value}'. Allowed values: {[e.name for e in self.enum_class]}"
@@ -49,5 +51,12 @@ class ServiceTicketSchema(ma.SQLAlchemySchema):
         exclude=("service_ticket",),
     )
     mechanics = ma.Nested(
-        "MechanicSchema", many=True, dump_only=True, only=("id", "name")
+        "MechanicSchema", many=True, dump_only=True, only=("id", "name"), 
+    )
+
+    inventory_assignments = fields.Nested(
+        "InventoryAssignmentSchema",
+        many=True,
+        dump_only=True,
+        exclude=("service_ticket",) 
     )

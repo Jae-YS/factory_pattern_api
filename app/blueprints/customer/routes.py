@@ -120,7 +120,7 @@ def get_my_tickets(user_id):
 
 @customer_bp.route("/<int:id>", methods=["PUT"])
 @token_required
-# @limiter.limit("5 per hour")
+@limiter.limit("5 per hour")
 def update_customer(user_id, id):
     """
     Update customer details.

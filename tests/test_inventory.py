@@ -1,7 +1,6 @@
 import unittest
 from app import create_app, db
 from app.models import Mechanic, Inventory
-from flask import Flask
 
 
 class InventoryRoutesTestCase(unittest.TestCase):
@@ -12,7 +11,6 @@ class InventoryRoutesTestCase(unittest.TestCase):
 
         with self.app.app_context():
             db.create_all()
-            # Create test mechanic
             self.mechanic = Mechanic(
                 name="Bob Wrench",
                 email="bob@example.com",
@@ -45,17 +43,19 @@ class InventoryRoutesTestCase(unittest.TestCase):
 
     # === TESTS FOR GET /inventory ===
     def test_get_all_inventory_success(self):
-        # Add inventory item
         with self.app.app_context():
             item = Inventory(
-                name="Wrench", quantity=10, description="Adjustable wrench"
+                part_name="Wrench",
+                quantity=10,
+                description="Adjustable wrench",
+                price=15.99,
             )
             db.session.add(item)
             db.session.commit()
 
         response = self.client.get("/inventory/", headers=self.auth_header())
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(any(i["name"] == "Wrench" for i in response.get_json()))
+        self.assertTrue(any(i["part_name"] == "Wrench" for i in response.get_json()))
 
     def test_get_all_inventory_unauthorized(self):
         response = self.client.get("/inventory/")
@@ -64,13 +64,19 @@ class InventoryRoutesTestCase(unittest.TestCase):
     # === TESTS FOR GET /inventory/<id> ===
     def test_get_inventory_item_success(self):
         with self.app.app_context():
-            item = Inventory(name="Hammer", quantity=5, description="Steel hammer")
+            item = Inventory(
+                part_name="Hammer",
+                quantity=5,
+                description="Steel hammer",
+                price=12.99,
+            )
             db.session.add(item)
             db.session.commit()
+            item_id = item.id
 
-        response = self.client.get(f"/inventory/{item.id}", headers=self.auth_header())
+        response = self.client.get(f"/inventory/{item_id}", headers=self.auth_header())
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.get_json()["name"], "Hammer")
+        self.assertEqual(response.get_json()["part_name"], "Hammer")
 
     def test_get_inventory_item_not_found(self):
         response = self.client.get("/inventory/9999", headers=self.auth_header())
@@ -82,67 +88,80 @@ class InventoryRoutesTestCase(unittest.TestCase):
             "/inventory/",
             headers=self.auth_header(),
             json={
-                "name": "Screwdriver",
+                "part_name": "Screwdriver",
                 "quantity": 15,
                 "description": "Flathead screwdriver",
+                "price": 5.99,
             },
         )
         self.assertEqual(response.status_code, 201)
-        self.assertEqual(response.get_json()["name"], "Screwdriver")
+        self.assertEqual(response.get_json()["part_name"], "Screwdriver")
 
     def test_create_inventory_item_invalid_payload(self):
         response = self.client.post(
             "/inventory/",
             headers=self.auth_header(),
-            json={"quantity": "not-a-number"},  # invalid data
+            json={"quantity": "not-a-number"},
         )
         self.assertEqual(response.status_code, 400)
 
     # === TESTS FOR PUT /inventory/<id> ===
     def test_update_inventory_item_success(self):
         with self.app.app_context():
-            item = Inventory(name="Drill", quantity=2, description="Electric drill")
+            item = Inventory(
+                part_name="Drill", quantity=2, description="Electric drill", price=99.99
+            )
             db.session.add(item)
             db.session.commit()
+            item_id = item.id
 
         response = self.client.put(
-            f"/inventory/{item.id}",
+            f"/inventory/{item_id}",
             headers=self.auth_header(),
-            json={"name": "Cordless Drill", "quantity": 3},
+            json={"part_name": "Cordless Drill", "quantity": 3},
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.get_json()["name"], "Cordless Drill")
+        self.assertEqual(response.get_json()["part_name"], "Cordless Drill")
 
     def test_update_inventory_item_not_found(self):
         response = self.client.put(
             "/inventory/9999",
             headers=self.auth_header(),
-            json={"name": "Nonexistent"},
+            json={"part_name": "Nonexistent"},
         )
         self.assertEqual(response.status_code, 404)
 
     def test_update_inventory_item_invalid_payload(self):
         with self.app.app_context():
-            item = Inventory(name="Saw", quantity=4)
+            item = Inventory(
+                part_name="Saw", quantity=4, description="Hand saw", price=20.00
+            )
             db.session.add(item)
             db.session.commit()
+            item_id = item.id
 
         response = self.client.put(
-            f"/inventory/{item.id}",
+            f"/inventory/{item_id}",
             headers=self.auth_header(),
-            json={"quantity": "invalid"},  # invalid data
+            json={"quantity": "invalid"},
         )
         self.assertEqual(response.status_code, 400)
 
     # === TESTS FOR DELETE /inventory/<id> ===
     def test_delete_inventory_item_success(self):
         with self.app.app_context():
-            item = Inventory(name="Pliers", quantity=6)
+            item = Inventory(
+                part_name="Pliers",
+                quantity=6,
+                description="Needle-nose pliers",
+                price=8.99,
+            )
             db.session.add(item)
             db.session.commit()
+            item_id = item.id
 
         response = self.client.delete(
-            f"/inventory/{item.id}", headers=self.auth_header()
+            f"/inventory/{item_id}", headers=self.auth_header()
         )
         self.assertEqual(response.status_code, 204)
 

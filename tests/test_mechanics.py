@@ -14,7 +14,6 @@ class MechanicRoutesTestCase(unittest.TestCase):
         with self.app.app_context():
             db.create_all()
 
-            # Create a test customer
             self.customer = Customer(
                 name="John Doe",
                 email="john@example.com",
@@ -25,7 +24,6 @@ class MechanicRoutesTestCase(unittest.TestCase):
             self.customer.set_password("password123")
             db.session.add(self.customer)
 
-            # Create test mechanic
             self.mechanic = Mechanic(
                 name="Alice Mechanic",
                 email="alice@example.com",
@@ -94,7 +92,7 @@ class MechanicRoutesTestCase(unittest.TestCase):
             "/mechanic/",
             json={
                 "name": "Duplicate",
-                "email": "alice@example.com",  # already exists
+                "email": "alice@example.com",
                 "phone": "000-0000",
                 "address": "999 Loop Rd",
                 "salary": 50000,
@@ -119,7 +117,7 @@ class MechanicRoutesTestCase(unittest.TestCase):
         self.assertEqual(response.get_json()["email"], "alice@example.com")
 
     def test_get_mechanic_unauthorized(self):
-        response = self.client.get(f"/mechanic/{self.mechanic.id}")  # no auth
+        response = self.client.get(f"/mechanic/{self.mechanic.id}")
         self.assertEqual(response.status_code, 401)
 
     # === TESTS FOR /mechanic/<id> (PUT) ===
@@ -154,7 +152,6 @@ class MechanicRoutesTestCase(unittest.TestCase):
 
     # === TESTS FOR /mechanic/rankings (GET) ===
     def test_get_mechanic_rankings(self):
-        # Add a service ticket and assignment
         with self.app.app_context():
             ticket = ServiceTicket(
                 title="Fix AC",
