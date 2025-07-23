@@ -1,0 +1,148 @@
+ServiceTicketSummary:
+  type: object
+  description: "A simplified service ticket for list views."
+  properties:
+    id:
+      type: integer
+      description: "Unique identifier for the service ticket."
+    title:
+      type: string
+      description: "Title or brief description of the service ticket."
+    date:
+      type: string
+      format: date-time
+      description: "Date when the service is created."
+    status:
+      type: string
+      enum:
+        - PENDING
+        - IN_PROGRESS
+        - COMPLETED
+        - CANCELLED
+      description: "Current status of the service ticket."
+    cost:
+      type: number
+      format: float
+      description: "Total cost associated with the service ticket."
+  required:
+    - id
+    - date
+    - status
+    - cost
+
+ServiceTicketRequest:
+  type: object
+  description: "Request body for creating a new service ticket."
+  properties:
+    title:
+      type: string
+      description: "Title or brief description of the service ticket."
+    vin:
+      type: string
+      description: "Vehicle Identification Number related to this ticket."
+    description:
+      type: string
+      description: "Detailed description of the service."
+    status:
+      type: string
+      enum:
+        - PENDING
+        - IN_PROGRESS
+        - COMPLETED
+        - CANCELLED
+      description: "Current status of the service ticket."
+    cost:
+      type: number
+      format: float
+      description: "Total cost associated with the service ticket."
+    mechanic_ids:
+      type: array
+      items:
+        type: integer
+      description: "IDs of mechanics assigned to this ticket."
+    inventory_items:
+      $ref: "../definitions/Inventory.yaml#/InventoryResponse"
+  required:
+    - vin
+    - description
+    - status
+    - cost
+
+ServiceTicketResponse:
+  type: object
+  description: "A single service ticket record."
+  properties:
+    id:
+      type: integer
+      description: "Unique identifier for the service ticket."
+    title:
+      type: string
+      description: "Title or brief description of the service ticket."
+    date:
+      type: string
+      format: date-time
+      description: "Date when the service is created."
+    service_date:
+      type: string
+      format: date-time
+      description: "Date when the service is scheduled or performed."
+    vin:
+      type: string
+      description: "Vehicle Identification Number related to this ticket."
+    description:
+      type: string
+      description: "Detailed description of the service."
+    status:
+      type: string
+      enum:
+        - PENDING
+        - IN_PROGRESS
+        - COMPLETED
+        - CANCELLED
+      description: "Current status of the service ticket."
+    cost:
+      type: number
+      format: float
+      description: "Total cost associated with the service ticket."
+    mechanics:
+      type: array
+      items:
+        $ref: "../definitions/Mechanic.yaml#/MechanicSummary"
+      description: "List of assigned mechanics with basic details."
+    inventory_items:
+      $ref: "../definitions/Inventory.yaml#/InventoryResponse"
+  required:
+    - id
+    - service_date
+    - vin
+    - description
+    - status
+    - cost
+
+ServiceTicketList:
+  type: object
+  description: "Paginated list of service tickets."
+  properties:
+    service_tickets:
+      type: array
+      description: "List of service tickets for the current page."
+      items:
+        $ref: "../definitions/ServiceTicket.yaml#/ServiceTicketResponse"
+    total:
+      type: integer
+      description: "Total number of service tickets available."
+    page:
+      type: integer
+      description: "Current page number."
+    per_page:
+      type: integer
+      description: "Number of service tickets per page."
+    pages:
+      type: integer
+      description: "Total number of pages."
+  required:
+    - service_tickets
+    - total
+    - page
+    - per_page
+    - pages

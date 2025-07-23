@@ -1,0 +1,73 @@
+post:
+  tags:
+    - Service Assignments
+  summary: "Create a service assignment"
+  description: "Assign a mechanic to a service ticket."
+  security:
+    - BearerAuth: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: "../definitions/ServiceAssignment.yaml#/ServiceAssignmentCreatePayload"
+  responses:
+    "201":
+      description: "Service assignment created successfully."
+      content:
+        application/json:
+          schema:
+            $ref: "../definitions/ServiceAssignment.yaml#/ServiceAssignmentResponse"
+    "400":
+      description: "Assignment already exists."
+      content:
+        application/json:
+          schema:
+            $ref: "../definitions/Error.yaml#/ErrorResponse"
+
+get:
+  summary: "Get all service assignments"
+  description: "Retrieve a list of all mechanic-service ticket assignments."
+  security:
+    - BearerAuth: []
+  tags:
+    - Service Assignments
+  responses:
+    "200":
+      description: "List of all service assignments."
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "../definitions/ServiceAssignment.yaml#/ServiceAssignmentResponse"
+
+delete:
+  summary: "Delete a service assignment"
+  description: "Remove a mechanic from a service ticket using query parameters."
+  security:
+    - BearerAuth: []
+  tags:
+    - Service Assignments
+  parameters:
+    - name: service_ticket_id
+      in: query
+      required: true
+      schema:
+        type: integer
+      description: "ID of the service ticket."
+    - name: mechanic_id
+      in: query
+      required: true
+      schema:
+        type: integer
+      description: "ID of the mechanic to unassign."
+  responses:
+    "200":
+      description: "Service assignment deleted successfully."
+    "404":
+      description: "Assignment not found."
+      content:
+        application/json:
+          schema:
+            $ref: "../definitions/Error.yaml#/ErrorResponse"

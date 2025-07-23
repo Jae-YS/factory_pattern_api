@@ -33,8 +33,6 @@ migrations/
 # Node modules (if using JS tooling)
 node_modules/
 
-# Static files (if generated)
-app/static/*
 
 # VSCode
 .vscode/

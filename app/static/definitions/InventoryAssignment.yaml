@@ -1,0 +1,75 @@
+InventoryAssignmentSummary:
+  type: object
+  description: "Basic inventory assignment details for referencing in other resources (e.g., service tickets or inventory)."
+  properties:
+    service_ticket_id:
+      type: integer
+      description: "Unique identifier for the associated service ticket."
+    inventory_id:
+      type: integer
+      description: "Unique identifier for the assigned inventory item."
+    quantity:
+      type: integer
+      description: "Quantity of the inventory item assigned to the service ticket."
+  required:
+    - service_ticket_id
+    - inventory_id
+    - quantity
+
+InventoryAssignmentCreatePayload:
+  type: object
+  description: "Payload for creating a new inventory assignment."
+  properties:
+    service_ticket_id:
+      type: integer
+      description: "ID of the service ticket receiving inventory."
+    inventory_id:
+      type: integer
+      description: "ID of the inventory item being assigned."
+    quantity:
+      type: integer
+      description: "Quantity of the inventory item to assign."
+  required:
+    - service_ticket_id
+    - inventory_id
+    - quantity
+
+InventoryAssignmentUpdatePayload:
+  type: object
+  description: "Payload for updating an existing inventory assignment."
+  properties:
+    service_ticket_id:
+      type: integer
+      description: "ID of the service ticket receiving inventory."
+    inventory_id:
+      type: integer
+      description: "ID of the inventory item being assigned."
+    quantity:
+      type: integer
+      description: "New quantity of the inventory item assigned."
+  required:
+    - service_ticket_id
+    - inventory_id
+    - quantity
+
+InventoryAssignmentResponse:
+  type: object
+  description: "Full details of an inventory assignment including nested service ticket and inventory data."
+  properties:
+    service_ticket_id:
+      type: integer
+      description: "Unique identifier for the associated service ticket."
+    inventory_id:
+      type: integer
+      description: "Unique identifier for the assigned inventory item."
+    quantity:
+      type: integer
+      description: "Quantity of the inventory item assigned."
+    service_ticket:
+      $ref: "../definitions/ServiceTicket.yaml#/ServiceTicketSummary"
+    inventory:
+      $ref: "../definitions/Inventory.yaml#/InventoryResponse"
+  required:
+    - service_ticket_id
+    - inventory_id
+    - quantity

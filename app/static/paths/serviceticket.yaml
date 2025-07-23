@@ -1,0 +1,172 @@
+post:
+  summary: Create a new service ticket
+  description: Creates a new service ticket and optionally assigns mechanics and inventory parts. **Only authenticated mechanics can perform this action.**
+  tags:
+    - Service Tickets
+  security:
+    - bearerAuth: [] # Mechanic token required
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: "../definitions/ServiceTicket.yaml#/ServiceTicketRequest"
+  responses:
+    "201":
+      description: Service ticket created successfully
+      content:
+        application/json:
+          schema:
+            $ref: "../definitions/ServiceTicket.yaml#/ServiceTicketResponse"
+    "400":
+      description: Invalid data
+      content:
+        application/json:
+          schema:
+            $ref: "../definitions/Error.yaml#/ErrorResponse"
+    "403":
+      description: Unauthorized (Mechanic access required)
+      content:
+        application/json:
+          schema:
+            $ref: "../definitions/Error.yaml#/ErrorResponse"
+    "500":
+      description: Database error occurred
+      content:
+        application/json:
+          schema:
+            $ref: "../definitions/Error.yaml#/ErrorResponse"
+
+get:
+  summary: Get all service tickets
+  description: Retrieves all service tickets with pagination support (cached for 30 seconds). **Only authenticated mechanics can view tickets.**
+  tags:
+    - Service Tickets
+  security:
+    - bearerAuth: [] # Mechanic token required
+  parameters:
+    - in: query
+      name: page
+      schema:
+        type: integer
+        default: 1
+    - in: query
+      name: per_page
+      schema:
+        type: integer
+        default: 10
+  responses:
+    "200":
+      description: List of service tickets
+      content:
+        application/json:
+          schema:
+            $ref: "../definitions/ServiceTicket.yaml#/ServiceTicketList"
+    "500":
+      description: Database error occurred
+      content:
+        application/json:
+          schema:
+            $ref: "../definitions/Error.yaml#/ErrorResponse"
+
+/{ticket_id}:
+  get:
+    summary: Get a specific service ticket
+    description: Retrieves details of a service ticket by its ID. **Only authenticated mechanics can view tickets.**
+    tags:
+      - Service Tickets
+    security:
+      - bearerAuth: [] # Mechanic token required
+    parameters:
+      - in: path
+        name: ticket_id
+        required: true
+        schema:
+          type: integer
+    responses:
+      "200":
+        description: Service ticket details
+        content:
+          application/json:
+            schema:
+              $ref: "../definitions/ServiceTicket.yaml#/ServiceTicketResponse"
+      "404":
+        description: Service ticket not found
+        content:
+          application/json:
+            schema:
+              $ref: "../definitions/Error.yaml#/ErrorResponse"
+      "500":
+        description: Database error occurred
+        content:
+          application/json:
+            schema:
+              $ref: "../definitions/Error.yaml#/ErrorResponse"
+
+  put:
+    summary: Update a service ticket
+    description: Updates mechanics, inventory parts, and status of a service ticket. **Only authenticated mechanics can perform updates.**
+    tags:
+      - Service Tickets
+    security:
+      - bearerAuth: [] # Mechanic token required
+    parameters:
+      - in: path
+        name: ticket_id
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "../definitions/ServiceTicket.yaml#/ServiceTicketUpdateRequest"
+    responses:
+      "200":
+        description: Service ticket updated successfully
+        content:
+          application/json:
+            schema:
+              $ref: "../definitions/ServiceTicket.yaml#/ServiceTicketUpdateResponse"
+      "404":
+        description: Service ticket not found
+        content:
+          application/json:
+            schema:
+              $ref: "../definitions/Error.yaml#/ErrorResponse"
+      "500":
+        description: Database error occurred
+        content:
+          application/json:
+            schema:
+              $ref: "../definitions/Error.yaml#/ErrorResponse"
+
+  delete:
+    summary: Delete a service ticket
+    description: Deletes a service ticket by ID. **Only authenticated mechanics can delete tickets.**
+    tags:
+      - Service Tickets
+    security:
+      - bearerAuth: [] # Mechanic token required
+    parameters:
+      - in: path
+        name: ticket_id
+        required: true
+        schema:
+          type: integer
+    responses:
+      "204":
+        description: Service ticket deleted successfully
+      "404":
+        description: Service ticket not found
+        content:
+          application/json:
+            schema:
+              $ref: "../definitions/Error.yaml#/ErrorResponse"
+      "500":
+        description: Database error occurred
+        content:
+          application/json:
+            schema:
+              $ref: "../definitions/Error.yaml#/ErrorResponse"

@@ -1,0 +1,164 @@
+get:
+  tags:
+    - Inventory
+  summary: "Get all Inventory Items"
+  security:
+    - bearerAuth: []
+  description: "Endpoint to retrieve a list of all inventory items."
+  responses:
+    "200":
+      description: "List of inventory items retrieved successfully"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "../definitions/Inventory.yaml#/InventoryResponse"
+    "500":
+      description: "Internal server error"
+      content:
+        application/json:
+          schema:
+            $ref: "../definitions/Error.yaml#/ErrorResponse"
+
+post:
+  tags:
+    - Inventory
+  summary: "Create a new inventory item"
+  security:
+    - bearerAuth: []
+  description: "Endpoint to create a new inventory item in the system."
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: "../definitions/Inventory.yaml#/InventoryCreatePayload"
+  responses:
+    "201":
+      description: "Inventory item created successfully"
+      content:
+        application/json:
+          schema:
+            $ref: "../definitions/Inventory.yaml#/InventoryResponse"
+    "403":
+      description: "Forbidden - User does not have permission to create inventory items"
+      content:
+        application/json:
+          schema:
+            $ref: "../definitions/Error.yaml#/ErrorResponse"
+    "400":
+      description: "Invalid request payload"
+      content:
+        application/json:
+          schema:
+            $ref: "../definitions/Error.yaml#/ErrorResponse"
+    "500":
+      description: "Internal server error"
+      content:
+        application/json:
+          schema:
+            $ref: "../definitions/Error.yaml#/ErrorResponse"
+
+/{item_id}:
+  get:
+    tags:
+      - Inventory
+    summary: "Get an inventory item by ID"
+    security:
+      - bearerAuth: []
+    description: "Endpoint to retrieve a specific inventory item by its ID."
+    parameters:
+      - name: inventory_id
+        in: path
+        required: true
+        schema:
+          type: integer
+        description: "ID of the inventory item to retrieve"
+    responses:
+      "200":
+        description: "Inventory item retrieved successfully"
+        content:
+          application/json:
+            schema:
+              $ref: "../definitions/Inventory.yaml#/InventoryResponse"
+      "404":
+        description: "Inventory item not found"
+        content:
+          application/json:
+            schema:
+              $ref: "../definitions/Error.yaml#/ErrorResponse"
+      "500":
+        description: "Internal server error"
+        content:
+          application/json:
+            schema:
+              $ref: "../definitions/Error.yaml#/ErrorResponse"
+  put:
+    tags:
+      - Inventory
+    summary: "Update an inventory item by ID"
+    security:
+      - bearerAuth: []
+    description: "Endpoint to update a specific inventory item by its ID."
+    parameters:
+      - name: inventory_id
+        in: path
+        required: true
+        schema:
+          type: integer
+        description: "ID of the inventory item to update"
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "../definitions/Inventory.yaml#/InventoryUpdatePayload"
+    responses:
+      "200":
+        description: "Inventory item updated successfully"
+        content:
+          application/json:
+            schema:
+              $ref: "../definitions/Inventory.yaml#/InventoryResponse"
+      "404":
+        description: "Inventory item not found"
+        content:
+          application/json:
+            schema:
+              $ref: "../definitions/Error.yaml#/ErrorResponse"
+      "500":
+        description: "Internal server error"
+        content:
+          application/json:
+            schema:
+              $ref: "../definitions/Error.yaml#/ErrorResponse"
+  delete:
+    tags:
+      - Inventory
+    summary: "Delete an inventory item by ID"
+    security:
+      - bearerAuth: []
+    description: "Endpoint to delete a specific inventory item by its ID."
+    parameters:
+      - name: inventory_id
+        in: path
+        required: true
+        schema:
+          type: integer
+        description: "ID of the inventory item to delete"
+    responses:
+      "204":
+        description: "Inventory item deleted successfully"
+      "404":
+        description: "Inventory item not found"
+        content:
+          application/json:
+            schema:
+              $ref: "../definitions/Error.yaml#/ErrorResponse"
+      "500":
+        description: "Internal server error"
+        content:
+          application/json:
+            schema:
+              $ref: "../definitions/Error.yaml#/ErrorResponse"

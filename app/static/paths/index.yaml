@@ -1,0 +1,12 @@
+/customer:
+  $ref: "./customer.yaml"
+/mechanic:
+  $ref: "./mechanic.yaml"
+/serviceticket:
+  $ref: "./serviceticket.yaml"
+/inventory:
+  $ref: "./inventory.yaml"
+/inventory_assignment:
+  $ref: "./inventoryassignment.yaml"
+/service_assignment:
+  $ref: "./serviceassignment.yaml"

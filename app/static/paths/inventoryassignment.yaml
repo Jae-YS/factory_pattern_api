@@ -1,0 +1,92 @@
+post:
+  summary: Assign an inventory item to a service ticket
+  tags:
+    - Inventory Assignments
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: "../definitions/inventoryAssignment.yaml#/InventoryAssignmentCreatePayload"
+  responses:
+    "201":
+      description: Inventory assignment created successfully
+      content:
+        application/json:
+          schema:
+            $ref: "../definitions/inventoryAssignment.yaml#/InventoryAssignmentResponse"
+    "400":
+      description: Inventory item already assigned
+      content:
+        application/json:
+          schema:
+            $ref: ../definitions/Error.yaml#/ErrorResponse
+
+get:
+  summary: Get all inventory-service ticket assignments
+  tags:
+    - Inventory Assignments
+  responses:
+    "200":
+      description: List of all inventory assignments
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "../definitions/inventoryAssignment.yaml#/InventoryAssignmentResponse"
+
+put:
+  summary: Update the quantity of an inventory assignment
+  tags:
+    - Inventory Assignments
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: "../definitions/inventoryAssignment.yaml#/InventoryAssignmentUpdatePayload"
+          required:
+            - service_ticket_id
+            - inventory_id
+            - quantity
+  responses:
+    "200":
+      description: Inventory assignment updated successfully
+      content:
+        application/json:
+          schema:
+            $ref: "../definitions/inventoryAssignment.yaml#/InventoryAssignmentResponse"
+    "404":
+      description: Assignment not found
+      content:
+        application/json:
+          schema:
+            $ref: ../definitions/Error.yaml#/ErrorResponse
+
+delete:
+  summary: Remove an inventory item from a service ticket
+  tags:
+    - Inventory Assignments
+  parameters:
+    - in: query
+      name: service_ticket_id
+      required: true
+      schema:
+        type: integer
+      description: "ID of the service ticket."
+    - in: query
+      name: inventory_id
+      required: true
+      schema:
+        type: integer
+      description: "ID of the inventory item."
+  responses:
+    "200":
+      description: Inventory assignment deleted successfully
+    "404":
+      description: Assignment not found
+      content:
+        application/json:
+          schema:
+            $ref: ../definitions/Error.yaml#/ErrorResponse

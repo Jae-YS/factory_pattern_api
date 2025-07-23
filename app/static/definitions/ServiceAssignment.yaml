@@ -1,0 +1,59 @@
+ServiceAssignmentSummary:
+  type: object
+  description: "Basic service assignment details for referencing in other resources (e.g., service tickets or mechanics)."
+  properties:
+    service_ticket_id:
+      type: integer
+      description: "Unique identifier for the associated service ticket."
+    mechanic_id:
+      type: integer
+      description: "Unique identifier for the assigned mechanic."
+    date_assigned:
+      type: string
+      format: date
+      description: "Date the mechanic was assigned to the service ticket."
+  required:
+    - service_ticket_id
+    - mechanic_id
+    - date_assigned
+
+ServiceAssignmentCreatePayload:
+  type: object
+  description: "Payload for creating a new service assignment."
+  properties:
+    service_ticket_id:
+      type: integer
+      description: "ID of the service ticket to assign."
+    mechanic_id:
+      type: integer
+      description: "ID of the mechanic being assigned."
+    date_assigned:
+      type: string
+      format: date
+      description: "Date of assignment (optional; defaults to current date if not provided)."
+  required:
+    - service_ticket_id
+    - mechanic_id
+
+ServiceAssignmentResponse:
+  type: object
+  description: "Full details of a service assignment including nested service ticket and mechanic data."
+  properties:
+    service_ticket_id:
+      type: integer
+      description: "Unique identifier for the associated service ticket."
+    mechanic_id:
+      type: integer
+      description: "Unique identifier for the assigned mechanic."
+    date_assigned:
+      type: string
+      format: date
+      description: "Date the mechanic was assigned."
+    service_ticket:
+      $ref: "../definitions/ServiceTicket.yaml#/ServiceTicketSummary"
+    mechanic:
+      $ref: "../definitions/Mechanic.yaml#/MechanicSummary"
+  required:
+    - service_ticket_id
+    - mechanic_id
+    - date_assigned

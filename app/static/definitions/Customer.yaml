@@ -1,0 +1,100 @@
+CustomerSummary:
+  type: object
+  description: "Basic customer details for referencing in other resources (e.g., service tickets)."
+  properties:
+    id:
+      type: integer
+      description: "Unique identifier for the customer."
+    name:
+      type: string
+      description: "Name of the customer."
+  required:
+    - id
+    - name
+
+CustomerCreatePayload:
+  type: object
+  description: "Payload for creating a new customer."
+  properties:
+    name:
+      type: string
+      description: "Full name of the customer."
+    password:
+      type: string
+      format: password
+      description: "Password for the customer account."
+    email:
+      type: string
+      format: email
+      description: "Email address of the customer."
+    phone:
+      type: string
+      description: "Phone number of the customer."
+    address:
+      type: string
+      description: "Address of the customer."
+    service_tickets:
+      type: array
+      items:
+        $ref: "../definitions/ServiceTicket.yaml#/ServiceTicketSummary"
+  required:
+    - name
+    - email
+    - phone
+    - address
+    - password
+
+CustomerResponse:
+  type: object
+  description: "Full details of a customer including associated service tickets."
+  properties:
+    id:
+      type: integer
+      description: "Unique identifier for the customer."
+    name:
+      type: string
+      description: "Full name of the customer."
+    email:
+      type: string
+      format: email
+      description: "Email address of the customer."
+    phone:
+      type: string
+      description: "Phone number of the customer."
+    address:
+      type: string
+      description: "Physical address of the customer."
+    service_tickets:
+      type: array
+      items:
+        $ref: "../definitions/ServiceTicket.yaml#/ServiceTicketSummary"
+  required:
+    - id
+    - name
+    - email
+    - phone
+    - address
+
+CustomerUpdatePayload:
+  type: object
+  description: "Payload for updating customer details."
+  properties:
+    name:
+      type: string
+      description: "Full name of the customer."
+    email:
+      type: string
+      format: email
+      description: "Email address of the customer."
+    phone:
+      type: string
+      description: "Phone number of the customer."
+    address:
+      type: string
+      description: "Physical address of the customer."
+
+CustomerListResponse:
+  type: array
+  description: "Array of customers."
+  items:
+    $ref: "../definitions/Customer.yaml#/CustomerResponse"

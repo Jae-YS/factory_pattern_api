@@ -1,0 +1,142 @@
+MechanicSummary:
+  type: object
+  description: "Basic mechanic details for service ticket context."
+  properties:
+    id:
+      type: integer
+      description: "Unique identifier for the mechanic."
+    name:
+      type: string
+      description: "Name of the mechanic."
+    email:
+      type: string
+      description: "Email address of the mechanic."
+    phone:
+      type: string
+      description: "Phone number of the mechanic."
+  required:
+    - id
+    - name
+    - email
+    - phone
+
+MechanicCreatePayload:
+  type: object
+  description: "Payload for creating a new mechanic."
+  properties:
+    name:
+      type: string
+      description: "Full name of the mechanic."
+    password:
+      type: string
+      format: password
+      description: "Password for the mechanic account."
+    email:
+      type: string
+      format: email
+      description: "Email address of the mechanic."
+    phone:
+      type: string
+      description: "Phone number of the mechanic."
+    address:
+      type: string
+      description: "Address of the mechanic."
+    salary:
+      type: number
+      format: float
+      description: "Salary of the mechanic."
+    service_tickets:
+      type: array
+      items:
+        $ref: "../definitions/ServiceTicket.yaml#/ServiceTicketSummary"
+    # service_assignments:
+    #   type: array
+    #   items:
+    #     $ref: "../definitions/ServiceAssignment.yaml#/ServiceAssignmentSummary"
+  required:
+    - name
+    - email
+    - phone
+    - address
+    - password
+    - salary
+
+MechanicResponse:
+  type: object
+  description: "Full details of a mechanic including associated tickets and assignments."
+  properties:
+    id:
+      type: integer
+      description: "Unique identifier for the mechanic."
+    name:
+      type: string
+      description: "Full name of the mechanic."
+    email:
+      type: string
+      format: email
+      description: "Email address of the mechanic."
+    phone:
+      type: string
+      description: "Phone number of the mechanic."
+    address:
+      type: string
+      description: "Physical address of the mechanic."
+    salary:
+      type: number
+      format: float
+      description: "Mechanic's salary."
+    service_tickets:
+      type: array
+      items:
+        $ref: "../definitions/ServiceTicket.yaml#/ServiceTicketSummary"
+    service_assignments:
+      type: array
+      items:
+        $ref: "../definitions/ServiceAssignment.yaml#/ServiceAssignmentSummary"
+  required:
+    - id
+    - name
+    - email
+    - phone
+    - address
+    - salary
+
+MechanicUpdatePayload:
+  type: object
+  description: "Payload for updating a mechanic. All fields are optional; only provided fields will be updated."
+  properties:
+    name:
+      type: string
+      description: "Full name of the mechanic."
+    password:
+      type: string
+      format: password
+      description: "Password for the mechanic account."
+    email:
+      type: string
+      format: email
+      description: "Email address of the mechanic."
+    phone:
+      type: string
+      description: "Phone number of the mechanic."
+    address:
+      type: string
+      description: "Physical address of the mechanic."
+    salary:
+      type: number
+      format: float
+      description: "Mechanic's salary."
+    service_tickets:
+      type: array
+      items:
+        $ref: "../definitions/ServiceTicket.yaml#/ServiceTicketSummary"
+    # service_assignments:
+    #   type: array
+    #   items:
+    #     $ref: "../definitions/ServiceAssignment.yaml#/ServiceAssignmentSummary"
+
+MechanicListResponse:
+  type: array
+  description: "Array of mechanics."
+  items:
+    $ref: "../definitions/Mechanic.yaml#/MechanicResponse"

@@ -1,0 +1,219 @@
+post:
+  tags:
+    - Customer
+  summary: "Create a new customer"
+  description: "Endpoint to create a new customer in the system."
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: "../definitions/Customer.yaml#/CustomerCreatePayload"
+  responses:
+    "201":
+      description: "Customer created successfully"
+      content:
+        application/json:
+          schema:
+            $ref: "../definitions/Customer.yaml#/CustomerResponse"
+    "409":
+      description: "Conflict - customer with this email already exists"
+      content:
+        application/json:
+          schema:
+            $ref: "../definitions/Error.yaml#/ErrorResponse"
+    "400":
+      description: "Invalid request payload"
+      content:
+        application/json:
+          schema:
+            $ref: "../definitions/Error.yaml#/ErrorResponse"
+    "500":
+      description: "Internal server error"
+      content:
+        application/json:
+          schema:
+            $ref: "../definitions/Error.yaml#/ErrorResponse"
+
+get:
+  tags:
+    - Customer
+  summary: "Get all customers"
+  description: "Endpoint to retrieve a list of all customers."
+  responses:
+    "200":
+      description: "List of customers retrieved successfully"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "../definitions/Customer.yaml#/CustomerResponse"
+    "500":
+      description: "Internal server error"
+      content:
+        application/json:
+          schema:
+            $ref: "../definitions/Error.yaml#/ErrorResponse"
+
+/login:
+  post:
+    tags:
+      - Customer
+    summary: "Customer Login (generates token)"
+    description: "Validates customer credentials and returns a JWT token."
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "../definitions/Auth.yaml#/LoginCredentials"
+    responses:
+      "200":
+        description: "Login successful"
+        content:
+          application/json:
+            schema:
+              $ref: "../definitions/Auth.yaml#/LoginResponse"
+      "400":
+        description: "Invalid credentials"
+        content:
+          application/json:
+            schema:
+              $ref: "../definitions/Error.yaml#/ErrorResponse"
+      "401":
+        description: "Unauthorized - Customer not found or password mismatch"
+      content:
+        application/json:
+          schema:
+            $ref: "../definitions/Error.yaml#/ErrorResponse"
+      "500":
+        description: "Internal server error"
+        content:
+          application/json:
+            schema:
+              $ref: "../definitions/Error.yaml#/ErrorResponse"
+
+/my-tickets:
+  get:
+    tags:
+      - Customer
+    summary: "Get service tickets for the current customer"
+    description: "Retrieve all service tickets associated with the authenticated customer."
+    security:
+      - bearerAuth: []
+    responses:
+      "200":
+        description: "Service tickets retrieved successfully"
+        content:
+          application/json:
+            schema:
+              $ref: "../definitions/ServiceTicket.yaml#/ServiceTicketList"
+      "401":
+        description: "Unauthorized - missing or invalid token"
+        content:
+          application/json:
+            schema:
+              $ref: "../definitions/Error.yaml#/ErrorResponse"
+      "500":
+        description: "Internal server error"
+        content:
+          application/json:
+            schema:
+              $ref: "../definitions/Error.yaml#/ErrorResponse"
+
+/{customer_id}:
+  get:
+    tags:
+      - Customer
+    summary: "Get a customer by ID"
+    description: "Retrieve a specific customer by their ID."
+    parameters:
+      - name: customer_id
+        in: path
+        required: true
+        description: "ID of the customer to retrieve"
+        schema:
+          type: integer
+    responses:
+      "200":
+        description: "Customer retrieved successfully"
+        content:
+          application/json:
+            schema:
+              $ref: "../definitions/Customer.yaml#/CustomerResponse"
+      "404":
+        description: "Customer not found"
+        content:
+          application/json:
+            schema:
+              $ref: "../definitions/Error.yaml#/ErrorResponse"
+      "500":
+        description: "Internal server error"
+        content:
+          application/json:
+            schema:
+              $ref: "../definitions/Error.yaml#/ErrorResponse"
+
+  put:
+    tags:
+      - Customer
+    summary: "Update a customer by ID"
+    description: "Update a specific customer by their ID."
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: customer_id
+        in: path
+        required: true
+        description: "ID of the customer to update"
+        schema:
+          type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "../definitions/Customer.yaml#/CustomerUpdatePayload"
+    responses:
+      "200":
+        description: "Customer updated successfully"
+        content:
+          application/json:
+            schema:
+              $ref: "../definitions/Customer.yaml#/CustomerResponse"
+      "401":
+        description: "Unauthorized - missing or invalid token"
+        content:
+          application/json:
+            schema:
+              $ref: "../definitions/Error.yaml#/ErrorResponse"
+      "500":
+        description: "Internal server error"
+        content:
+          application/json:
+            schema:
+              $ref: "../definitions/Error.yaml#/ErrorResponse"
+
+  delete:
+    tags:
+      - Customer
+    summary: "Delete current customer"
+    description: "Endpoint to delete the current customer from the system."
+    security:
+      - bearerAuth: []
+    responses:
+      "204":
+        description: "Customer deleted successfully"
+      "401":
+        description: "Unauthorized - missing or invalid token"
+        content:
+          application/json:
+            schema:
+              $ref: "../definitions/Error.yaml#/ErrorResponse"
+      "500":
+        description: "Internal server error"
+        content:
+          application/json:
+            schema:
+              $ref: "../definitions/Error.yaml#/ErrorResponse"

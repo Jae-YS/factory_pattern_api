@@ -1,0 +1,22 @@
+openapi: 3.0.3
+info:
+  title: "Mechanic Factory API"
+  description: >
+    RESTful API to manage customers, mechanics, service tickets, inventory,
+    inventory assignments, and service assignments for a mechanic shop.
+  version: "1.0.0"
+
+servers:
+  - url: "https://mechanic-api-uwqv.onrender.com"
+    description: "Production server (Render)"
+
+paths:
+  $ref: "./paths/index.yaml"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas: {}
