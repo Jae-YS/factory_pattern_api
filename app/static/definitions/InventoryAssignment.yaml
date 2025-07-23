@@ -28,11 +28,11 @@ InventoryAssignmentCreatePayload:
       description: "ID of the inventory item being assigned."
     quantity:
       type: integer
-      description: "Quantity of the inventory item to assign."
+      description: "Quantity of the inventory item to assign (default is 1)."
+      default: 1
   required:
     - service_ticket_id
     - inventory_id
-    - quantity
 
 InventoryAssignmentUpdatePayload:
   type: object

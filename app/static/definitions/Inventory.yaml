@@ -21,6 +21,24 @@ InventoryCreatePayload:
     - quantity
     - description
 
+InventoryUpdatePayload:
+  type: object
+  description: "Payload for updating an existing inventory item. All fields are optional."
+  properties:
+    part_name:
+      type: string
+      description: "Name of the inventory part."
+    price:
+      type: number
+      format: float
+      description: "Price of the inventory part."
+    quantity:
+      type: integer
+      description: "Available quantity of the inventory part."
+    description:
+      type: string
+      description: "Description of the inventory part."
+
 InventoryResponse:
   type: object
   description: "Details of an inventory item."
@@ -38,38 +56,12 @@ InventoryResponse:
     quantity:
       type: integer
       description: "Available quantity of the inventory part."
+    description:
+      type: string
+      description: "Description of the inventory part."
   required:
     - id
     - part_name
     - price
     - quantity
     - description
-
-InventoryUpdatePayload:
-  type: object
-  description: "Payload for updating an existing inventory item."
-  properties:
-    part_name:
-      type: string
-      description: "Name of the inventory part."
-    price:
-      type: number
-      format: float
-      description: "Price of the inventory part."
-    quantity:
-      type: integer
-      description: "Available quantity of the inventory part."
-    description:
-      type: string
-      description: "Description of the inventory part."
-  required:
-    - part_name
-    - price
-    - quantity
-    - description
-
-InventoryListResponse:
-  type: array
-  description: "List of inventory items."
-  items:
-    $ref: "#/definitions/InventoryResponse"

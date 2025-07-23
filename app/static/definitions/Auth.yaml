@@ -12,7 +12,7 @@ LoginCredentials:
 LoginResponse:
   type: object
   properties:
-    token:
+    auth_token:
       type: string
     message:
       type: string

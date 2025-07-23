@@ -203,8 +203,15 @@ get:
     security:
       - bearerAuth: []
     responses:
-      "204":
+      "200":
         description: "Customer deleted successfully"
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
       "401":
         description: "Unauthorized - missing or invalid token"
         content:

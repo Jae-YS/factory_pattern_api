@@ -121,14 +121,14 @@ get:
       content:
         application/json:
           schema:
-            $ref: "../definitions/ServiceTicket.yaml#/ServiceTicketUpdateRequest"
+            $ref: "../definitions/ServiceTicket.yaml#/ServiceTicketUpdatePayload"
     responses:
       "200":
         description: Service ticket updated successfully
         content:
           application/json:
             schema:
-              $ref: "../definitions/ServiceTicket.yaml#/ServiceTicketUpdateResponse"
+              $ref: "../definitions/ServiceTicket.yaml#/ServiceTicketResponse"
       "404":
         description: Service ticket not found
         content:
@@ -156,8 +156,16 @@ get:
         schema:
           type: integer
     responses:
-      "204":
+      "200":
         description: Service ticket deleted successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: "Service ticket deleted successfully"
       "404":
         description: Service ticket not found
         content:

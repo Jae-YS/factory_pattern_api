@@ -126,17 +126,36 @@ MechanicUpdatePayload:
       type: number
       format: float
       description: "Mechanic's salary."
-    service_tickets:
+    service_ticket_ids:
       type: array
+      description: "IDs of service tickets to assign to the mechanic."
       items:
-        $ref: "../definitions/ServiceTicket.yaml#/ServiceTicketSummary"
-    # service_assignments:
-    #   type: array
-    #   items:
-    #     $ref: "../definitions/ServiceAssignment.yaml#/ServiceAssignmentSummary"
+        type: integer
 
 MechanicListResponse:
-  type: array
-  description: "Array of mechanics."
-  items:
-    $ref: "../definitions/Mechanic.yaml#/MechanicResponse"
+  type: object
+  description: "Paginated list of mechanics."
+  properties:
+    mechanics:
+      type: array
+      description: "List of mechanics for the current page"
+      items:
+        $ref: "../definitions/Mechanic.yaml#/MechanicResponse"
+    total:
+      type: integer
+      description: "Total number of mechanics in the system"
+    page:
+      type: integer
+      description: "Current page number"
+    per_page:
+      type: integer
+      description: "Number of mechanics per page"
+    pages:
+      type: integer
+      description: "Total number of pages"
+  required:
+    - mechanics
+    - total
+    - page
+    - per_page
+    - pages

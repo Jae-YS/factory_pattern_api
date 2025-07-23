@@ -92,9 +92,35 @@ CustomerUpdatePayload:
     address:
       type: string
       description: "Physical address of the customer."
+    service_tickets:
+      type: array
+      description: "IDs of associated service tickets."
+      items:
+        type: integer
 
 CustomerListResponse:
-  type: array
-  description: "Array of customers."
-  items:
-    $ref: "../definitions/Customer.yaml#/CustomerResponse"
+  type: object
+  description: "Paginated list of customers."
+  properties:
+    customers:
+      type: array
+      items:
+        $ref: "../definitions/Customer.yaml#/CustomerResponse"
+    total:
+      type: integer
+      description: "Total number of customers"
+    page:
+      type: integer
+      description: "Current page number"
+    per_page:
+      type: integer
+      description: "Number of items per page"
+    pages:
+      type: integer
+      description: "Total number of pages"
+  required:
+    - customers
+    - total
+    - page
+    - per_page
+    - pages

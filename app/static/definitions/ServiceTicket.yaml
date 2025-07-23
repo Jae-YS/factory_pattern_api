@@ -8,10 +8,10 @@ ServiceTicketSummary:
     title:
       type: string
       description: "Title or brief description of the service ticket."
-    date:
+    service_date:
       type: string
       format: date-time
-      description: "Date when the service is created."
+      description: "Date when the service is scheduled or performed."
     status:
       type: string
       enum:
@@ -26,7 +26,7 @@ ServiceTicketSummary:
       description: "Total cost associated with the service ticket."
   required:
     - id
-    - date
+    - service_date
     - status
     - cost
 
@@ -61,12 +61,63 @@ ServiceTicketRequest:
         type: integer
       description: "IDs of mechanics assigned to this ticket."
     inventory_items:
-      $ref: "../definitions/Inventory.yaml#/InventoryResponse"
+      type: array
+      description: "List of inventory items with quantities."
+      items:
+        type: object
+        properties:
+          inventory_id:
+            type: integer
+            description: "ID of the inventory item."
+          quantity:
+            type: integer
+            description: "Quantity of the inventory item to assign."
+            default: 1
   required:
     - vin
     - description
-    - status
     - cost
+
+ServiceTicketUpdatePayload:
+  type: object
+  description: "Payload for updating an existing service ticket. Supports adding/removing mechanics, updating inventory items, and changing status. Only the provided fields will be updated."
+  properties:
+    add_mechanics:
+      type: array
+      items:
+        type: integer
+      description: "IDs of mechanics to add to the ticket."
+    remove_mechanics:
+      type: array
+      items:
+        type: integer
+      description: "IDs of mechanics to remove from the ticket."
+    add_inventory:
+      type: array
+      description: "List of inventory items to add with quantities."
+      items:
+        type: object
+        properties:
+          inventory_id:
+            type: integer
+            description: "ID of the inventory item to add."
+          quantity:
+            type: integer
+            description: "Quantity of the inventory item to add."
+            default: 1
+    remove_inventory:
+      type: array
+      items:
+        type: integer
+      description: "IDs of inventory items to remove from the ticket."
+    status:
+      type: string
+      enum:
+        - PENDING
+        - IN_PROGRESS
+        - COMPLETED
+        - CANCELLED
+      description: "New status for the service ticket."
 
 ServiceTicketResponse:
   type: object
@@ -78,10 +129,6 @@ ServiceTicketResponse:
     title:
       type: string
       description: "Title or brief description of the service ticket."
-    date:
-      type: string
-      format: date-time
-      description: "Date when the service is created."
     service_date:
       type: string
       format: date-time
@@ -106,11 +153,21 @@ ServiceTicketResponse:
       description: "Total cost associated with the service ticket."
     mechanics:
       type: array
+      description: "List of assigned mechanics with basic details."
       items:
         $ref: "../definitions/Mechanic.yaml#/MechanicSummary"
-      description: "List of assigned mechanics with basic details."
-    inventory_items:
-      $ref: "../definitions/Inventory.yaml#/InventoryResponse"
+    inventory_assignments:
+      type: array
+      description: "List of assigned inventory items and their quantities."
+      items:
+        type: object
+        properties:
+          inventory_id:
+            type: integer
+            description: "ID of the inventory item."
+          quantity:
+            type: integer
+            description: "Quantity of the inventory item assigned."
   required:
     - id
     - service_date

@@ -148,8 +148,16 @@ post:
           type: integer
         description: "ID of the inventory item to delete"
     responses:
-      "204":
+      "200":
         description: "Inventory item deleted successfully"
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: "Inventory item 1 deleted successfully"
       "404":
         description: "Inventory item not found"
         content:

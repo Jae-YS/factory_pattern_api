@@ -2,9 +2,9 @@ post:
   tags:
     - Service Assignments
   summary: "Create a service assignment"
-  description: "Assign a mechanic to a service ticket."
+  description: "Assign a mechanic to a service ticket. **Authenticated mechanics only.**"
   security:
-    - BearerAuth: []
+    - bearerAuth: []
   requestBody:
     required: true
     content:
@@ -19,19 +19,25 @@ post:
           schema:
             $ref: "../definitions/ServiceAssignment.yaml#/ServiceAssignmentResponse"
     "400":
-      description: "Assignment already exists."
+      description: "Assignment already exists or invalid date format (use YYYY-MM-DD)."
+      content:
+        application/json:
+          schema:
+            $ref: "../definitions/Error.yaml#/ErrorResponse"
+    "500":
+      description: "Database error occurred."
       content:
         application/json:
           schema:
             $ref: "../definitions/Error.yaml#/ErrorResponse"
 
 get:
-  summary: "Get all service assignments"
-  description: "Retrieve a list of all mechanic-service ticket assignments."
-  security:
-    - BearerAuth: []
   tags:
     - Service Assignments
+  summary: "Get all service assignments"
+  description: "Retrieve a list of all mechanic-service ticket assignments. **Authenticated mechanics only.**"
+  security:
+    - bearerAuth: []
   responses:
     "200":
       description: "List of all service assignments."
@@ -41,14 +47,20 @@ get:
             type: array
             items:
               $ref: "../definitions/ServiceAssignment.yaml#/ServiceAssignmentResponse"
+    "500":
+      description: "Database error occurred."
+      content:
+        application/json:
+          schema:
+            $ref: "../definitions/Error.yaml#/ErrorResponse"
 
 delete:
-  summary: "Delete a service assignment"
-  description: "Remove a mechanic from a service ticket using query parameters."
-  security:
-    - BearerAuth: []
   tags:
     - Service Assignments
+  summary: "Delete a service assignment"
+  description: "Remove a mechanic from a service ticket using query parameters. **Authenticated mechanics only.**"
+  security:
+    - bearerAuth: []
   parameters:
     - name: service_ticket_id
       in: query
@@ -65,8 +77,28 @@ delete:
   responses:
     "200":
       description: "Service assignment deleted successfully."
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "Assignment deleted successfully"
+    "400":
+      description: "Missing service_ticket_id or mechanic_id."
+      content:
+        application/json:
+          schema:
+            $ref: "../definitions/Error.yaml#/ErrorResponse"
     "404":
       description: "Assignment not found."
+      content:
+        application/json:
+          schema:
+            $ref: "../definitions/Error.yaml#/ErrorResponse"
+    "500":
+      description: "Database error occurred."
       content:
         application/json:
           schema:

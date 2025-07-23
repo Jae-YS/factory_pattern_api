@@ -2,6 +2,8 @@ post:
   summary: Assign an inventory item to a service ticket
   tags:
     - Inventory Assignments
+  security:
+    - bearerAuth: []
   requestBody:
     required: true
     content:
@@ -20,12 +22,13 @@ post:
       content:
         application/json:
           schema:
-            $ref: ../definitions/Error.yaml#/ErrorResponse
-
+            $ref: "../definitions/Error.yaml#/ErrorResponse"
 get:
   summary: Get all inventory-service ticket assignments
   tags:
     - Inventory Assignments
+  security:
+    - bearerAuth: []
   responses:
     "200":
       description: List of all inventory assignments
@@ -35,21 +38,18 @@ get:
             type: array
             items:
               $ref: "../definitions/inventoryAssignment.yaml#/InventoryAssignmentResponse"
-
 put:
   summary: Update the quantity of an inventory assignment
   tags:
     - Inventory Assignments
+  security:
+    - bearerAuth: []
   requestBody:
     required: true
     content:
       application/json:
         schema:
           $ref: "../definitions/inventoryAssignment.yaml#/InventoryAssignmentUpdatePayload"
-          required:
-            - service_ticket_id
-            - inventory_id
-            - quantity
   responses:
     "200":
       description: Inventory assignment updated successfully
@@ -62,12 +62,13 @@ put:
       content:
         application/json:
           schema:
-            $ref: ../definitions/Error.yaml#/ErrorResponse
-
+            $ref: "../definitions/Error.yaml#/ErrorResponse"
 delete:
   summary: Remove an inventory item from a service ticket
   tags:
     - Inventory Assignments
+  security:
+    - bearerAuth: []
   parameters:
     - in: query
       name: service_ticket_id
@@ -84,9 +85,17 @@ delete:
   responses:
     "200":
       description: Inventory assignment deleted successfully
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "Inventory assignment deleted successfully"
     "404":
       description: Assignment not found
       content:
         application/json:
           schema:
-            $ref: ../definitions/Error.yaml#/ErrorResponse
+            $ref: "../definitions/Error.yaml#/ErrorResponse"
