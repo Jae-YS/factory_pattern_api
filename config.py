@@ -4,13 +4,16 @@ import os
 class Config:
     SECRET_KEY = os.getenv("SECRET_KEY", "fallback-secret-key")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URI", "sqlite:///default.db")
     DEBUG = False
     TESTING = False
 
 
 class DevelopmentConfig(Config):
     DEBUG = True
+    SQLALCHEMY_DATABASE_URI = os.getenv(
+        "DATABASE_URI",
+        "mysql+pymysql://root:password@localhost:3306/mechanic_db"
+    )
 
 
 class TestingConfig(Config):
@@ -20,5 +23,8 @@ class TestingConfig(Config):
 
 
 class ProductionConfig(Config):
-    SQLALCHEMY_DATABASE_URI = "sqlite:///production.db"
     DEBUG = False
+    SQLALCHEMY_DATABASE_URI = os.getenv(
+        "SQLALCHEMY_DATABASE_URI",
+        "sqlite:///production.db"
+    )
