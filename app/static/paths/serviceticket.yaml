@@ -4,7 +4,7 @@ post:
   tags:
     - Service Tickets
   security:
-    - bearerAuth: [] # Mechanic token required
+    - bearerAuth: []
   requestBody:
     required: true
     content:
@@ -43,7 +43,7 @@ get:
   tags:
     - Service Tickets
   security:
-    - bearerAuth: [] # Mechanic token required
+    - bearerAuth: []
   parameters:
     - in: query
       name: page
@@ -76,7 +76,7 @@ get:
     tags:
       - Service Tickets
     security:
-      - bearerAuth: [] # Mechanic token required
+      - bearerAuth: []
     parameters:
       - in: path
         name: ticket_id
@@ -109,7 +109,7 @@ get:
     tags:
       - Service Tickets
     security:
-      - bearerAuth: [] # Mechanic token required
+      - bearerAuth: []
     parameters:
       - in: path
         name: ticket_id
@@ -148,7 +148,7 @@ get:
     tags:
       - Service Tickets
     security:
-      - bearerAuth: [] # Mechanic token required
+      - bearerAuth: []
     parameters:
       - in: path
         name: ticket_id
