@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
 class Config:
     SECRET_KEY = os.environ.get("SECRET_KEY", "fallback-secret-key")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
@@ -12,8 +13,10 @@ class Config:
 
 class DevelopmentConfig(Config):
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = os.environ.get("SQLALCHEMY_DATABASE_URI")
-
+    SQLALCHEMY_DATABASE_URI = os.environ.get(
+        "DATABASE_URI", 
+        "mysql+pymysql://root:password@localhost:3306/mechanic_db"
+    )
 
 
 class TestingConfig(Config):
@@ -22,6 +25,8 @@ class TestingConfig(Config):
 
 
 class ProductionConfig(Config):
-    SECRET_KEY = os.getenv("SECRET_KEY", "fallback-secret-key")
-    SQLALCHEMY_DATABASE_URI = os.getenv("SQLALCHEMY_DATABASE_URI")
     DEBUG = False
+    SQLALCHEMY_DATABASE_URI = os.environ.get(
+        "SQLALCHEMY_DATABASE_URI", 
+        "postgresql+psycopg2://user:pass@localhost/db" 
+    )
