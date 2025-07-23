@@ -12,8 +12,12 @@ from .blueprints.inventoryassignment.routes import inventory_assignment_bp
 from flask_swagger_ui import get_swaggerui_blueprint
 
 SWAGGER_URL = "/api/docs"
-API_URL = "/static/bundled.yaml"
 
+if os.getenv("FLASK_ENV") == "production":
+    API_URL = "https://mechanic-api-uwqv.onrender.com/static/bundled.yaml"
+else:
+    API_URL = "/static/bundled.yaml"
+    
 swaggerui_blueprint = get_swaggerui_blueprint(
     SWAGGER_URL,
     API_URL,
@@ -32,11 +36,6 @@ def create_app(config_name=None):
         app.config.from_object("config.DevelopmentConfig")
     else:
         app.config.from_object("config.ProductionConfig")
-
-    print("CONFIG:", config_name or "production")
-    print("ENV SECRET_KEY:", os.environ.get("SECRET_KEY"))
-    print("ENV SQLALCHEMY_DATABASE_URI:", os.environ.get("SQLALCHEMY_DATABASE_URI"))
-    print("APP CONFIG SQLALCHEMY_DATABASE_URI:", app.config.get("SQLALCHEMY_DATABASE_URI"))
 
     db.init_app(app)
     ma.init_app(app)
