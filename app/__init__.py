@@ -1,3 +1,4 @@
+import os
 from flask import Flask
 from dotenv import load_dotenv
 from .extensions import db, ma, limiter, cache, migrate
@@ -27,8 +28,10 @@ swaggerui_blueprint = get_swaggerui_blueprint(
 
 def create_app(config_name=None):
     load_dotenv()
+    
 
     app = Flask(__name__)
+    print(config_name)
     if config_name == "testing":
         app.config.from_object("config.TestingConfig")
     elif config_name == "development":
@@ -37,7 +40,9 @@ def create_app(config_name=None):
         app.config.from_object("config.ProductionConfig")
     else:
         app.config.from_object("config.Config")
-
+    print("ENV SECRET_KEY:", os.getenv("SECRET_KEY"))
+    print("ENV SQLALCHEMY_DATABASE_URI:", os.getenv("SQLALCHEMY_DATABASE_URI"))
+    print("CONFIG:", config_name)
     db.init_app(app)
     ma.init_app(app)
     limiter.init_app(app)
