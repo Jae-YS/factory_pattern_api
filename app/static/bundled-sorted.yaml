@@ -1,20 +1,19 @@
 openapi: 3.0.3
 info:
   title: Mechanic Factory API
-  description:
-    "RESTful API to manage customers, mechanics, service tickets, inventory,
+  description: 'RESTful API to manage customers, mechanics, service tickets, inventory,
     inventory assignments, and service assignments for a mechanic shop.
 
-    "
+    '
   version: 1.0.0
 servers:
-  - url: https://mechanic-api-uwqv.onrender.com
-    description: Production server (Render)
+- url: https://mechanic-api-uwqv.onrender.com
+  description: Production server (Render)
 paths:
   /customer:
     post:
       tags:
-        - Customer
+      - Customer
       summary: Create a new customer
       description: Endpoint to create a new customer in the system.
       requestBody:
@@ -22,56 +21,56 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CustomerCreatePayload"
+              $ref: '#/components/schemas/CustomerCreatePayload'
       responses:
-        "201":
+        '201':
           description: Customer created successfully
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CustomerResponse"
-        "400":
+                $ref: '#/components/schemas/CustomerResponse'
+        '400':
           description: Invalid request payload
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "409":
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
           description: Conflict - customer with this email already exists
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "500":
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
     get:
       tags:
-        - Customer
+      - Customer
       summary: Get all customers
       description: Endpoint to retrieve a list of all customers.
       responses:
-        "200":
+        '200':
           description: List of customers retrieved successfully
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/CustomerResponse"
-        "500":
+                  $ref: '#/components/schemas/CustomerResponse'
+        '500':
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
     /login:
       post:
         tags:
-          - Customer
+        - Customer
         summary: Customer Login (generates token)
         description: Validates customer credentials and returns a JWT token.
         requestBody:
@@ -81,21 +80,21 @@ paths:
               schema:
                 $ref: ../definitions/Auth.yaml#/LoginCredentials
         responses:
-          "200":
+          '200':
             description: Login successful
             content:
               application/json:
                 schema:
                   $ref: ../definitions/Auth.yaml#/LoginResponse
-          "400":
+          '400':
             description: Invalid credentials
             content:
               application/json:
                 schema:
                   $ref: ../definitions/Error.yaml#/ErrorResponse
-          "401":
+          '401':
             description: Unauthorized - Customer not found or password mismatch
-          "500":
+          '500':
             description: Internal server error
             content:
               application/json:
@@ -108,27 +107,26 @@ paths:
     /my-tickets:
       get:
         tags:
-          - Customer
+        - Customer
         summary: Get service tickets for the current customer
-        description:
-          Retrieve all service tickets associated with the authenticated
+        description: Retrieve all service tickets associated with the authenticated
           customer.
         security:
-          - bearerAuth: []
+        - bearerAuth: []
         responses:
-          "200":
+          '200':
             description: Service tickets retrieved successfully
             content:
               application/json:
                 schema:
                   $ref: ../definitions/ServiceTicket.yaml#/ServiceTicketList
-          "401":
+          '401':
             description: Unauthorized - missing or invalid token
             content:
               application/json:
                 schema:
                   $ref: ../definitions/Error.yaml#/ErrorResponse
-          "500":
+          '500':
             description: Internal server error
             content:
               application/json:
@@ -137,30 +135,30 @@ paths:
     /{customer_id}:
       get:
         tags:
-          - Customer
+        - Customer
         summary: Get a customer by ID
         description: Retrieve a specific customer by their ID.
         parameters:
-          - name: customer_id
-            in: path
-            required: true
-            description: ID of the customer to retrieve
-            schema:
-              type: integer
+        - name: customer_id
+          in: path
+          required: true
+          description: ID of the customer to retrieve
+          schema:
+            type: integer
         responses:
-          "200":
+          '200':
             description: Customer retrieved successfully
             content:
               application/json:
                 schema:
                   $ref: ../definitions/Customer.yaml#/CustomerResponse
-          "404":
+          '404':
             description: Customer not found
             content:
               application/json:
                 schema:
                   $ref: ../definitions/Error.yaml#/ErrorResponse
-          "500":
+          '500':
             description: Internal server error
             content:
               application/json:
@@ -168,18 +166,18 @@ paths:
                   $ref: ../definitions/Error.yaml#/ErrorResponse
       put:
         tags:
-          - Customer
+        - Customer
         summary: Update a customer by ID
         description: Update a specific customer by their ID.
         security:
-          - bearerAuth: []
+        - bearerAuth: []
         parameters:
-          - name: customer_id
-            in: path
-            required: true
-            description: ID of the customer to update
-            schema:
-              type: integer
+        - name: customer_id
+          in: path
+          required: true
+          description: ID of the customer to update
+          schema:
+            type: integer
         requestBody:
           required: true
           content:
@@ -187,19 +185,19 @@ paths:
               schema:
                 $ref: ../definitions/Customer.yaml#/CustomerUpdatePayload
         responses:
-          "200":
+          '200':
             description: Customer updated successfully
             content:
               application/json:
                 schema:
                   $ref: ../definitions/Customer.yaml#/CustomerResponse
-          "401":
+          '401':
             description: Unauthorized - missing or invalid token
             content:
               application/json:
                 schema:
                   $ref: ../definitions/Error.yaml#/ErrorResponse
-          "500":
+          '500':
             description: Internal server error
             content:
               application/json:
@@ -207,13 +205,13 @@ paths:
                   $ref: ../definitions/Error.yaml#/ErrorResponse
       delete:
         tags:
-          - Customer
+        - Customer
         summary: Delete current customer
         description: Endpoint to delete the current customer from the system.
         security:
-          - bearerAuth: []
+        - bearerAuth: []
         responses:
-          "200":
+          '200':
             description: Customer deleted successfully
             content:
               application/json:
@@ -222,13 +220,13 @@ paths:
                   properties:
                     message:
                       type: string
-          "401":
+          '401':
             description: Unauthorized - missing or invalid token
             content:
               application/json:
                 schema:
                   $ref: ../definitions/Error.yaml#/ErrorResponse
-          "500":
+          '500':
             description: Internal server error
             content:
               application/json:
@@ -237,7 +235,7 @@ paths:
   /mechanic:
     post:
       tags:
-        - Mechanic
+      - Mechanic
       summary: Create a new mechanic
       description: Endpoint to create a new mechanic in the system.
       requestBody:
@@ -245,67 +243,67 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/MechanicCreatePayload"
+              $ref: '#/components/schemas/MechanicCreatePayload'
       responses:
-        "201":
+        '201':
           description: Mechanic created successfully
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/MechanicResponse"
-        "400":
+                $ref: '#/components/schemas/MechanicResponse'
+        '400':
           description: Invalid request payload
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "409":
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
           description: Conflict - Mechanic with this email already exists
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "500":
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
     get:
       tags:
-        - Mechanic
+      - Mechanic
       summary: Get all Mechanics
       description: Endpoint to retrieve a paginated list of mechanics.
       parameters:
-        - name: page
-          in: query
-          required: false
-          description: "Page number for pagination (default: 1)"
-          schema:
-            type: integer
-        - name: per_page
-          in: query
-          required: false
-          description: "Number of mechanics per page (default: 10)"
-          schema:
-            type: integer
+      - name: page
+        in: query
+        required: false
+        description: 'Page number for pagination (default: 1)'
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        required: false
+        description: 'Number of mechanics per page (default: 10)'
+        schema:
+          type: integer
       responses:
-        "200":
+        '200':
           description: Paginated list of mechanics retrieved successfully
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/MechanicListResponse"
-        "500":
+                $ref: '#/components/schemas/MechanicListResponse'
+        '500':
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
     /login:
       post:
         tags:
-          - Mechanic
+        - Mechanic
         summary: Mechanic Login (generates token)
         description: Validates mechanic credentials and returns a JWT token.
         requestBody:
@@ -315,25 +313,25 @@ paths:
               schema:
                 $ref: ../definitions/Auth.yaml#/LoginCredentials
         responses:
-          "200":
+          '200':
             description: Login successful
             content:
               application/json:
                 schema:
                   $ref: ../definitions/Auth.yaml#/LoginResponse
-          "400":
+          '400':
             description: Invalid credentials
             content:
               application/json:
                 schema:
                   $ref: ../definitions/Error.yaml#/ErrorResponse
-          "401":
+          '401':
             description: Unauthorized - Mechanic not found or password mismatch
             content:
               application/json:
                 schema:
                   $ref: ../definitions/Error.yaml#/ErrorResponse
-          "500":
+          '500':
             description: Internal server error
             content:
               application/json:
@@ -342,18 +340,18 @@ paths:
     /{mechanic_id}:
       put:
         tags:
-          - Mechanic
+        - Mechanic
         summary: Update Mechanic by ID
         description: Endpoint to update a mechanic's details by their ID.
         security:
-          - bearerAuth: []
+        - bearerAuth: []
         parameters:
-          - name: mechanic_id
-            in: path
-            required: true
-            description: ID of the mechanic to update
-            schema:
-              type: integer
+        - name: mechanic_id
+          in: path
+          required: true
+          description: ID of the mechanic to update
+          schema:
+            type: integer
         requestBody:
           required: true
           content:
@@ -361,25 +359,25 @@ paths:
               schema:
                 $ref: ../definitions/Mechanic.yaml#/MechanicUpdatePayload
         responses:
-          "200":
+          '200':
             description: Mechanic updated successfully
             content:
               application/json:
                 schema:
                   $ref: ../definitions/Mechanic.yaml#/MechanicResponse
-          "403":
+          '403':
             description: Forbidden - Mechanic does not have access to this resource
             content:
               application/json:
                 schema:
                   $ref: ../definitions/Error.yaml#/ErrorResponse
-          "404":
+          '404':
             description: Mechanic not found
             content:
               application/json:
                 schema:
                   $ref: ../definitions/Error.yaml#/ErrorResponse
-          "500":
+          '500':
             description: Internal server error
             content:
               application/json:
@@ -387,20 +385,20 @@ paths:
                   $ref: ../definitions/Error.yaml#/ErrorResponse
       delete:
         tags:
-          - Mechanic
+        - Mechanic
         summary: Delete Mechanic by ID
         security:
-          - bearerAuth: []
+        - bearerAuth: []
         description: Endpoint to delete a mechanic by their ID.
         parameters:
-          - name: mechanic_id
-            in: path
-            required: true
-            description: ID of the mechanic to delete
-            schema:
-              type: integer
+        - name: mechanic_id
+          in: path
+          required: true
+          description: ID of the mechanic to delete
+          schema:
+            type: integer
         responses:
-          "200":
+          '200':
             description: Mechanic deleted successfully
             content:
               application/json:
@@ -410,25 +408,25 @@ paths:
                     message:
                       type: string
                       example: Mechanic deleted successfully
-          "400":
+          '400':
             description: Invalid request - Mechanic ID must be a valid integer
             content:
               application/json:
                 schema:
                   $ref: ../definitions/Error.yaml#/ErrorResponse
-          "403":
+          '403':
             description: Forbidden - Mechanic does not have access to this resource
             content:
               application/json:
                 schema:
                   $ref: ../definitions/Error.yaml#/ErrorResponse
-          "404":
+          '404':
             description: Mechanic not found
             content:
               application/json:
                 schema:
                   $ref: ../definitions/Error.yaml#/ErrorResponse
-          "500":
+          '500':
             description: Internal server error
             content:
               application/json:
@@ -436,38 +434,38 @@ paths:
                   $ref: ../definitions/Error.yaml#/ErrorResponse
       get:
         tags:
-          - Mechanic
+        - Mechanic
         summary: Get Mechanic by ID
         security:
-          - bearerAuth: []
+        - bearerAuth: []
         description: Endpoint to retrieve a mechanic's details by their ID.
         parameters:
-          - name: mechanic_id
-            in: path
-            required: true
-            description: ID of the mechanic to retrieve
-            schema:
-              type: integer
+        - name: mechanic_id
+          in: path
+          required: true
+          description: ID of the mechanic to retrieve
+          schema:
+            type: integer
         responses:
-          "200":
+          '200':
             description: Mechanic retrieved successfully
             content:
               application/json:
                 schema:
                   $ref: ../definitions/Mechanic.yaml#/MechanicResponse
-          "403":
+          '403':
             description: Forbidden - Mechanic does not have access to this resource
             content:
               application/json:
                 schema:
                   $ref: ../definitions/Error.yaml#/ErrorResponse
-          "404":
+          '404':
             description: Mechanic not found
             content:
               application/json:
                 schema:
                   $ref: ../definitions/Error.yaml#/ErrorResponse
-          "500":
+          '500':
             description: Internal server error
             content:
               application/json:
@@ -476,13 +474,12 @@ paths:
     /rankings:
       get:
         tags:
-          - Mechanic
+        - Mechanic
         summary: Get Mechanic Rankings
-        description:
-          Endpoint to retrieve the rankings of mechanics based on their
+        description: Endpoint to retrieve the rankings of mechanics based on their
           performance.
         responses:
-          "200":
+          '200':
             description: Mechanic rankings retrieved successfully
             content:
               application/json:
@@ -496,7 +493,7 @@ paths:
                       ticket_count:
                         type: integer
                         description: Number of service tickets assigned to this mechanic
-          "500":
+          '500':
             description: Internal server error
             content:
               application/json:
@@ -505,107 +502,104 @@ paths:
   /serviceticket:
     post:
       summary: Create a new service ticket
-      description:
-        Creates a new service ticket and optionally assigns mechanics and
+      description: Creates a new service ticket and optionally assigns mechanics and
         inventory parts. **Only authenticated mechanics can perform this action.**
       tags:
-        - Service Tickets
+      - Service Tickets
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ServiceTicketRequest"
+              $ref: '#/components/schemas/ServiceTicketRequest'
       responses:
-        "201":
+        '201':
           description: Service ticket created successfully
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ServiceTicketResponse"
-        "400":
+                $ref: '#/components/schemas/ServiceTicketResponse'
+        '400':
           description: Invalid data
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "403":
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
           description: Unauthorized (Mechanic access required)
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "500":
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
           description: Database error occurred
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
     get:
       summary: Get all service tickets
-      description:
-        Retrieves all service tickets with pagination support (cached for
+      description: Retrieves all service tickets with pagination support (cached for
         30 seconds). **Only authenticated mechanics can view tickets.**
       tags:
-        - Service Tickets
+      - Service Tickets
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       parameters:
-        - in: query
-          name: page
-          schema:
-            type: integer
-            default: 1
-        - in: query
-          name: per_page
-          schema:
-            type: integer
-            default: 10
+      - in: query
+        name: page
+        schema:
+          type: integer
+          default: 1
+      - in: query
+        name: per_page
+        schema:
+          type: integer
+          default: 10
       responses:
-        "200":
+        '200':
           description: List of service tickets
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ServiceTicketList"
-        "500":
+                $ref: '#/components/schemas/ServiceTicketList'
+        '500':
           description: Database error occurred
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
     /{ticket_id}:
       get:
         summary: Get a specific service ticket
-        description:
-          Retrieves details of a service ticket by its ID. **Only authenticated
+        description: Retrieves details of a service ticket by its ID. **Only authenticated
           mechanics can view tickets.**
         tags:
-          - Service Tickets
+        - Service Tickets
         security:
-          - bearerAuth: []
+        - bearerAuth: []
         parameters:
-          - in: path
-            name: ticket_id
-            required: true
-            schema:
-              type: integer
+        - in: path
+          name: ticket_id
+          required: true
+          schema:
+            type: integer
         responses:
-          "200":
+          '200':
             description: Service ticket details
             content:
               application/json:
                 schema:
                   $ref: ../definitions/ServiceTicket.yaml#/ServiceTicketResponse
-          "404":
+          '404':
             description: Service ticket not found
             content:
               application/json:
                 schema:
                   $ref: ../definitions/Error.yaml#/ErrorResponse
-          "500":
+          '500':
             description: Database error occurred
             content:
               application/json:
@@ -613,19 +607,18 @@ paths:
                   $ref: ../definitions/Error.yaml#/ErrorResponse
       put:
         summary: Update a service ticket
-        description:
-          Updates mechanics, inventory parts, and status of a service ticket.
+        description: Updates mechanics, inventory parts, and status of a service ticket.
           **Only authenticated mechanics can perform updates.**
         tags:
-          - Service Tickets
+        - Service Tickets
         security:
-          - bearerAuth: []
+        - bearerAuth: []
         parameters:
-          - in: path
-            name: ticket_id
-            required: true
-            schema:
-              type: integer
+        - in: path
+          name: ticket_id
+          required: true
+          schema:
+            type: integer
         requestBody:
           required: true
           content:
@@ -633,19 +626,19 @@ paths:
               schema:
                 $ref: ../definitions/ServiceTicket.yaml#/ServiceTicketUpdatePayload
         responses:
-          "200":
+          '200':
             description: Service ticket updated successfully
             content:
               application/json:
                 schema:
                   $ref: ../definitions/ServiceTicket.yaml#/ServiceTicketResponse
-          "404":
+          '404':
             description: Service ticket not found
             content:
               application/json:
                 schema:
                   $ref: ../definitions/Error.yaml#/ErrorResponse
-          "500":
+          '500':
             description: Database error occurred
             content:
               application/json:
@@ -653,21 +646,20 @@ paths:
                   $ref: ../definitions/Error.yaml#/ErrorResponse
       delete:
         summary: Delete a service ticket
-        description:
-          Deletes a service ticket by ID. **Only authenticated mechanics
+        description: Deletes a service ticket by ID. **Only authenticated mechanics
           can delete tickets.**
         tags:
-          - Service Tickets
+        - Service Tickets
         security:
-          - bearerAuth: []
+        - bearerAuth: []
         parameters:
-          - in: path
-            name: ticket_id
-            required: true
-            schema:
-              type: integer
+        - in: path
+          name: ticket_id
+          required: true
+          schema:
+            type: integer
         responses:
-          "200":
+          '200':
             description: Service ticket deleted successfully
             content:
               application/json:
@@ -677,13 +669,13 @@ paths:
                     message:
                       type: string
                       example: Service ticket deleted successfully
-          "404":
+          '404':
             description: Service ticket not found
             content:
               application/json:
                 schema:
                   $ref: ../definitions/Error.yaml#/ErrorResponse
-          "500":
+          '500':
             description: Database error occurred
             content:
               application/json:
@@ -692,95 +684,94 @@ paths:
   /inventory:
     get:
       tags:
-        - Inventory
+      - Inventory
       summary: Get all Inventory Items
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       description: Endpoint to retrieve a list of all inventory items.
       responses:
-        "200":
+        '200':
           description: List of inventory items retrieved successfully
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/InventoryResponse"
-        "500":
+                  $ref: '#/components/schemas/InventoryResponse'
+        '500':
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
     post:
       tags:
-        - Inventory
+      - Inventory
       summary: Create a new inventory item
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       description: Endpoint to create a new inventory item in the system.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/InventoryCreatePayload"
+              $ref: '#/components/schemas/InventoryCreatePayload'
       responses:
-        "201":
+        '201':
           description: Inventory item created successfully
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/InventoryResponse"
-        "400":
+                $ref: '#/components/schemas/InventoryResponse'
+        '400':
           description: Invalid request payload
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "403":
-          description:
-            Forbidden - User does not have permission to create inventory
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - User does not have permission to create inventory
             items
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "500":
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
     /{item_id}:
       get:
         tags:
-          - Inventory
+        - Inventory
         summary: Get an inventory item by ID
         security:
-          - bearerAuth: []
+        - bearerAuth: []
         description: Endpoint to retrieve a specific inventory item by its ID.
         parameters:
-          - name: inventory_id
-            in: path
-            required: true
-            schema:
-              type: integer
-            description: ID of the inventory item to retrieve
+        - name: inventory_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the inventory item to retrieve
         responses:
-          "200":
+          '200':
             description: Inventory item retrieved successfully
             content:
               application/json:
                 schema:
                   $ref: ../definitions/Inventory.yaml#/InventoryResponse
-          "404":
+          '404':
             description: Inventory item not found
             content:
               application/json:
                 schema:
                   $ref: ../definitions/Error.yaml#/ErrorResponse
-          "500":
+          '500':
             description: Internal server error
             content:
               application/json:
@@ -788,18 +779,18 @@ paths:
                   $ref: ../definitions/Error.yaml#/ErrorResponse
       put:
         tags:
-          - Inventory
+        - Inventory
         summary: Update an inventory item by ID
         security:
-          - bearerAuth: []
+        - bearerAuth: []
         description: Endpoint to update a specific inventory item by its ID.
         parameters:
-          - name: inventory_id
-            in: path
-            required: true
-            schema:
-              type: integer
-            description: ID of the inventory item to update
+        - name: inventory_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the inventory item to update
         requestBody:
           required: true
           content:
@@ -807,19 +798,19 @@ paths:
               schema:
                 $ref: ../definitions/Inventory.yaml#/InventoryUpdatePayload
         responses:
-          "200":
+          '200':
             description: Inventory item updated successfully
             content:
               application/json:
                 schema:
                   $ref: ../definitions/Inventory.yaml#/InventoryResponse
-          "404":
+          '404':
             description: Inventory item not found
             content:
               application/json:
                 schema:
                   $ref: ../definitions/Error.yaml#/ErrorResponse
-          "500":
+          '500':
             description: Internal server error
             content:
               application/json:
@@ -827,20 +818,20 @@ paths:
                   $ref: ../definitions/Error.yaml#/ErrorResponse
       delete:
         tags:
-          - Inventory
+        - Inventory
         summary: Delete an inventory item by ID
         security:
-          - bearerAuth: []
+        - bearerAuth: []
         description: Endpoint to delete a specific inventory item by its ID.
         parameters:
-          - name: inventory_id
-            in: path
-            required: true
-            schema:
-              type: integer
-            description: ID of the inventory item to delete
+        - name: inventory_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the inventory item to delete
         responses:
-          "200":
+          '200':
             description: Inventory item deleted successfully
             content:
               application/json:
@@ -850,13 +841,13 @@ paths:
                     message:
                       type: string
                       example: Inventory item 1 deleted successfully
-          "404":
+          '404':
             description: Inventory item not found
             content:
               application/json:
                 schema:
                   $ref: ../definitions/Error.yaml#/ErrorResponse
-          "500":
+          '500':
             description: Internal server error
             content:
               application/json:
@@ -866,89 +857,89 @@ paths:
     post:
       summary: Assign an inventory item to a service ticket
       tags:
-        - Inventory Assignments
+      - Inventory Assignments
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/InventoryAssignmentCreatePayload"
+              $ref: '#/components/schemas/InventoryAssignmentCreatePayload'
       responses:
-        "201":
+        '201':
           description: Inventory assignment created successfully
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/InventoryAssignmentResponse"
-        "400":
+                $ref: '#/components/schemas/InventoryAssignmentResponse'
+        '400':
           description: Inventory item already assigned
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
     get:
       summary: Get all inventory-service ticket assignments
       tags:
-        - Inventory Assignments
+      - Inventory Assignments
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       responses:
-        "200":
+        '200':
           description: List of all inventory assignments
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/InventoryAssignmentResponse"
+                  $ref: '#/components/schemas/InventoryAssignmentResponse'
     put:
       summary: Update the quantity of an inventory assignment
       tags:
-        - Inventory Assignments
+      - Inventory Assignments
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/InventoryAssignmentUpdatePayload"
+              $ref: '#/components/schemas/InventoryAssignmentUpdatePayload'
       responses:
-        "200":
+        '200':
           description: Inventory assignment updated successfully
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/InventoryAssignmentResponse"
-        "404":
+                $ref: '#/components/schemas/InventoryAssignmentResponse'
+        '404':
           description: Assignment not found
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
     delete:
       summary: Remove an inventory item from a service ticket
       tags:
-        - Inventory Assignments
+      - Inventory Assignments
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       parameters:
-        - in: query
-          name: service_ticket_id
-          required: true
-          schema:
-            type: integer
-          description: ID of the service ticket.
-        - in: query
-          name: inventory_id
-          required: true
-          schema:
-            type: integer
-          description: ID of the inventory item.
+      - in: query
+        name: service_ticket_id
+        required: true
+        schema:
+          type: integer
+        description: ID of the service ticket.
+      - in: query
+        name: inventory_id
+        required: true
+        schema:
+          type: integer
+        description: ID of the inventory item.
       responses:
-        "200":
+        '200':
           description: Inventory assignment deleted successfully
           content:
             application/json:
@@ -958,95 +949,92 @@ paths:
                   message:
                     type: string
                     example: Inventory assignment deleted successfully
-        "404":
+        '404':
           description: Assignment not found
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
   /service_assignment:
     post:
       tags:
-        - Service Assignments
+      - Service Assignments
       summary: Create a service assignment
-      description:
-        Assign a mechanic to a service ticket. **Authenticated mechanics
+      description: Assign a mechanic to a service ticket. **Authenticated mechanics
         only.**
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ServiceAssignmentCreatePayload"
+              $ref: '#/components/schemas/ServiceAssignmentCreatePayload'
       responses:
-        "201":
+        '201':
           description: Service assignment created successfully.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ServiceAssignmentResponse"
-        "400":
+                $ref: '#/components/schemas/ServiceAssignmentResponse'
+        '400':
           description: Assignment already exists or invalid date format (use YYYY-MM-DD).
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "500":
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
           description: Database error occurred.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
     get:
       tags:
-        - Service Assignments
+      - Service Assignments
       summary: Get all service assignments
-      description:
-        Retrieve a list of all mechanic-service ticket assignments. **Authenticated
+      description: Retrieve a list of all mechanic-service ticket assignments. **Authenticated
         mechanics only.**
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       responses:
-        "200":
+        '200':
           description: List of all service assignments.
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/ServiceAssignmentResponse"
-        "500":
+                  $ref: '#/components/schemas/ServiceAssignmentResponse'
+        '500':
           description: Database error occurred.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
     delete:
       tags:
-        - Service Assignments
+      - Service Assignments
       summary: Delete a service assignment
-      description:
-        Remove a mechanic from a service ticket using query parameters.
+      description: Remove a mechanic from a service ticket using query parameters.
         **Authenticated mechanics only.**
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       parameters:
-        - name: service_ticket_id
-          in: query
-          required: true
-          schema:
-            type: integer
-          description: ID of the service ticket.
-        - name: mechanic_id
-          in: query
-          required: true
-          schema:
-            type: integer
-          description: ID of the mechanic to unassign.
+      - name: service_ticket_id
+        in: query
+        required: true
+        schema:
+          type: integer
+        description: ID of the service ticket.
+      - name: mechanic_id
+        in: query
+        required: true
+        schema:
+          type: integer
+        description: ID of the mechanic to unassign.
       responses:
-        "200":
+        '200':
           description: Service assignment deleted successfully.
           content:
             application/json:
@@ -1056,24 +1044,24 @@ paths:
                   message:
                     type: string
                     example: Assignment deleted successfully
-        "400":
+        '400':
           description: Missing service_ticket_id or mechanic_id.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "404":
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
           description: Assignment not found.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "500":
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
           description: Database error occurred.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
 components:
   securitySchemes:
     bearerAuth:
@@ -1105,13 +1093,13 @@ components:
         service_tickets:
           type: array
           items:
-            $ref: "#/components/schemas/ServiceTicketRequest"
+            $ref: '#/components/schemas/ServiceTicketRequest'
       required:
-        - name
-        - email
-        - phone
-        - address
-        - password
+      - name
+      - email
+      - phone
+      - address
+      - password
     CustomerResponse:
       type: object
       description: Full details of a customer including associated service tickets.
@@ -1135,13 +1123,13 @@ components:
         service_tickets:
           type: array
           items:
-            $ref: "#/components/schemas/ServiceTicketSummary"
+            $ref: '#/components/schemas/ServiceTicketSummary'
       required:
-        - id
-        - name
-        - email
-        - phone
-        - address
+      - id
+      - name
+      - email
+      - phone
+      - address
     ErrorResponse:
       type: object
       properties:
@@ -1150,8 +1138,8 @@ components:
         status:
           type: string
       required:
-        - message
-        - status
+      - message
+      - status
     InventoryAssignmentCreatePayload:
       type: object
       description: Payload for creating a new inventory assignment.
@@ -1167,12 +1155,11 @@ components:
           description: Quantity of the inventory item to assign (default is 1).
           default: 1
       required:
-        - service_ticket_id
-        - inventory_id
+      - service_ticket_id
+      - inventory_id
     InventoryAssignmentResponse:
       type: object
-      description:
-        Full details of an inventory assignment including nested service
+      description: Full details of an inventory assignment including nested service
         ticket and inventory data.
       properties:
         service_ticket_id:
@@ -1185,13 +1172,13 @@ components:
           type: integer
           description: Quantity of the inventory item assigned.
         service_ticket:
-          $ref: "#/components/schemas/ServiceTicketSummary"
+          $ref: '#/components/schemas/ServiceTicketSummary'
         inventory:
-          $ref: "#/components/schemas/InventoryResponse"
+          $ref: '#/components/schemas/InventoryResponse'
       required:
-        - service_ticket_id
-        - inventory_id
-        - quantity
+      - service_ticket_id
+      - inventory_id
+      - quantity
     InventoryAssignmentUpdatePayload:
       type: object
       description: Payload for updating an existing inventory assignment.
@@ -1206,9 +1193,9 @@ components:
           type: integer
           description: New quantity of the inventory item assigned.
       required:
-        - service_ticket_id
-        - inventory_id
-        - quantity
+      - service_ticket_id
+      - inventory_id
+      - quantity
     InventoryCreatePayload:
       type: object
       description: Payload for creating a new inventory item.
@@ -1227,10 +1214,10 @@ components:
           type: string
           description: Description of the inventory part.
       required:
-        - part_name
-        - price
-        - quantity
-        - description
+      - part_name
+      - price
+      - quantity
+      - description
     InventoryResponse:
       type: object
       description: Details of an inventory item.
@@ -1252,11 +1239,11 @@ components:
           type: string
           description: Description of the inventory part.
       required:
-        - id
-        - part_name
-        - price
-        - quantity
-        - description
+      - id
+      - part_name
+      - price
+      - quantity
+      - description
     MechanicCreatePayload:
       type: object
       description: Payload for creating a new mechanic.
@@ -1285,14 +1272,14 @@ components:
         service_tickets:
           type: array
           items:
-            $ref: "#/components/schemas/ServiceTicketSummary"
+            $ref: '#/components/schemas/ServiceTicketSummary'
       required:
-        - name
-        - email
-        - phone
-        - address
-        - password
-        - salary
+      - name
+      - email
+      - phone
+      - address
+      - password
+      - salary
     MechanicListResponse:
       type: object
       description: Paginated list of mechanics.
@@ -1301,7 +1288,7 @@ components:
           type: array
           description: List of mechanics for the current page
           items:
-            $ref: "#/components/schemas/MechanicResponse"
+            $ref: '#/components/schemas/MechanicResponse'
         total:
           type: integer
           description: Total number of mechanics in the system
@@ -1315,11 +1302,11 @@ components:
           type: integer
           description: Total number of pages
       required:
-        - mechanics
-        - total
-        - page
-        - per_page
-        - pages
+      - mechanics
+      - total
+      - page
+      - per_page
+      - pages
     MechanicResponse:
       type: object
       description: Full details of a mechanic including associated tickets and assignments.
@@ -1347,18 +1334,18 @@ components:
         service_tickets:
           type: array
           items:
-            $ref: "#/components/schemas/ServiceTicketSummary"
+            $ref: '#/components/schemas/ServiceTicketSummary'
         service_assignments:
           type: array
           items:
-            $ref: "#/components/schemas/ServiceAssignmentSummary"
+            $ref: '#/components/schemas/ServiceAssignmentSummary'
       required:
-        - id
-        - name
-        - email
-        - phone
-        - address
-        - salary
+      - id
+      - name
+      - email
+      - phone
+      - address
+      - salary
     MechanicSummary:
       type: object
       description: Basic mechanic details for service ticket context.
@@ -1376,10 +1363,10 @@ components:
           type: string
           description: Phone number of the mechanic.
       required:
-        - id
-        - name
-        - email
-        - phone
+      - id
+      - name
+      - email
+      - phone
     ServiceAssignmentCreatePayload:
       type: object
       description: Payload for creating a new service assignment.
@@ -1393,16 +1380,14 @@ components:
         date_assigned:
           type: string
           format: date
-          description:
-            Date of assignment (optional; defaults to current date if not
+          description: Date of assignment (optional; defaults to current date if not
             provided).
       required:
-        - service_ticket_id
-        - mechanic_id
+      - service_ticket_id
+      - mechanic_id
     ServiceAssignmentResponse:
       type: object
-      description:
-        Full details of a service assignment including nested service ticket
+      description: Full details of a service assignment including nested service ticket
         and mechanic data.
       properties:
         service_ticket_id:
@@ -1416,17 +1401,16 @@ components:
           format: date
           description: Date the mechanic was assigned.
         service_ticket:
-          $ref: "#/components/schemas/ServiceTicketSummary"
+          $ref: '#/components/schemas/ServiceTicketSummary'
         mechanic:
-          $ref: "#/components/schemas/MechanicSummary"
+          $ref: '#/components/schemas/MechanicSummary'
       required:
-        - service_ticket_id
-        - mechanic_id
-        - date_assigned
+      - service_ticket_id
+      - mechanic_id
+      - date_assigned
     ServiceAssignmentSummary:
       type: object
-      description:
-        Basic service assignment details for referencing in other resources
+      description: Basic service assignment details for referencing in other resources
         (e.g., service tickets or mechanics).
       properties:
         service_ticket_id:
@@ -1440,9 +1424,9 @@ components:
           format: date
           description: Date the mechanic was assigned to the service ticket.
       required:
-        - service_ticket_id
-        - mechanic_id
-        - date_assigned
+      - service_ticket_id
+      - mechanic_id
+      - date_assigned
     ServiceTicketList:
       type: object
       description: Paginated list of service tickets.
@@ -1451,7 +1435,7 @@ components:
           type: array
           description: List of service tickets for the current page.
           items:
-            $ref: "#/components/schemas/ServiceTicketResponse"
+            $ref: '#/components/schemas/ServiceTicketResponse'
         total:
           type: integer
           description: Total number of service tickets available.
@@ -1465,11 +1449,11 @@ components:
           type: integer
           description: Total number of pages.
       required:
-        - service_tickets
-        - total
-        - page
-        - per_page
-        - pages
+      - service_tickets
+      - total
+      - page
+      - per_page
+      - pages
     ServiceTicketRequest:
       type: object
       description: Request body for creating a new service ticket.
@@ -1486,10 +1470,10 @@ components:
         status:
           type: string
           enum:
-            - PENDING
-            - IN_PROGRESS
-            - COMPLETED
-            - CANCELLED
+          - PENDING
+          - IN_PROGRESS
+          - COMPLETED
+          - CANCELLED
           description: Current status of the service ticket.
         cost:
           type: number
@@ -1514,9 +1498,9 @@ components:
                 description: Quantity of the inventory item to assign.
                 default: 1
       required:
-        - vin
-        - description
-        - cost
+      - vin
+      - description
+      - cost
     ServiceTicketResponse:
       type: object
       description: A single service ticket record.
@@ -1540,10 +1524,10 @@ components:
         status:
           type: string
           enum:
-            - PENDING
-            - IN_PROGRESS
-            - COMPLETED
-            - CANCELLED
+          - PENDING
+          - IN_PROGRESS
+          - COMPLETED
+          - CANCELLED
           description: Current status of the service ticket.
         cost:
           type: number
@@ -1553,7 +1537,7 @@ components:
           type: array
           description: List of assigned mechanics with basic details.
           items:
-            $ref: "#/components/schemas/MechanicSummary"
+            $ref: '#/components/schemas/MechanicSummary'
         inventory_assignments:
           type: array
           description: List of assigned inventory items and their quantities.
@@ -1567,12 +1551,12 @@ components:
                 type: integer
                 description: Quantity of the inventory item assigned.
       required:
-        - id
-        - service_date
-        - vin
-        - description
-        - status
-        - cost
+      - id
+      - service_date
+      - vin
+      - description
+      - status
+      - cost
     ServiceTicketSummary:
       type: object
       description: A simplified service ticket for list views.
@@ -1590,17 +1574,17 @@ components:
         status:
           type: string
           enum:
-            - PENDING
-            - IN_PROGRESS
-            - COMPLETED
-            - CANCELLED
+          - PENDING
+          - IN_PROGRESS
+          - COMPLETED
+          - CANCELLED
           description: Current status of the service ticket.
         cost:
           type: number
           format: float
           description: Total cost associated with the service ticket.
       required:
-        - id
-        - service_date
-        - status
-        - cost
+      - id
+      - service_date
+      - status
+      - cost

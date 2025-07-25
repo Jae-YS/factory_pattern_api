@@ -36,7 +36,7 @@ CustomerCreatePayload:
     service_tickets:
       type: array
       items:
-        $ref: "../definitions/ServiceTicket.yaml#/ServiceTicketSummary"
+        $ref: "../definitions/ServiceTicket.yaml#/ServiceTicketRequest"
   required:
     - name
     - email

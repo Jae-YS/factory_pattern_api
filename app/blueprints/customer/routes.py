@@ -47,7 +47,7 @@ def login():
 
 
 @customer_bp.route("/", methods=["POST"])
-@limiter.limit("5 per hour")
+# @limiter.limit("5 per hour")
 def create_customer():
     """
     Create a new customer.
